@@ -178,7 +178,7 @@ float sinegen(void)
 	// temporary variable used to output values from function
 	float wave;
 	
-	wave = table[(int)(sine_freq / (float)sampling_freq * (float)SINE_TABLE_SIZE * sine_index) % SINE_TABLE_SIZE];
+	wave = table[(int)((sine_freq / (float)sampling_freq) * (float)SINE_TABLE_SIZE * sine_index) % SINE_TABLE_SIZE];
 	
 	sine_index++;
 
