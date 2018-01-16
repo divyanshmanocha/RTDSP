@@ -100,6 +100,9 @@ float sine_freq = 1000.0;
 // Declares the global sine table that will be used to generate the sine wave
 float table[SINE_TABLE_SIZE];
 
+// Current index in the table, that can be used to calculate the next index
+int sine_index = 0;
+
      
 /******************************* Function prototypes ********************************/
 void init_hardware(void);
@@ -159,7 +162,7 @@ void init_hardware()
 
 }
 
-/******************************* init_hardware() ************************************/
+/******************************* sin_init() ************************************/
 void sine_init()
 {
 	int i;
@@ -172,26 +175,12 @@ void sine_init()
 /********************************** sinegen() ***************************************/   
 float sinegen(void)
 {
-/*  This code produces a fixed sine of 1KHZ (if the sampling frequency is 8KHZ)
-    using a digital filter.
- 	You will need to re-write this function to produce a sine of variable frequency
- 	using a look up table instead of a filter.*/
-	
 	// temporary variable used to output values from function
 	float wave;
-
-	// represets the filter coeficients (square root of 2 and 1/square root of 2)
-	float a0 = 1.4142;
-	float b0 = 0.7071;
-
-	y[0] = a0 * y[1] - y[2] + b0 * x[0]; // Difference equation
-
-	y[2] = y[1]; // move values through buffer
-	y[1] = y[0];
-
-	x[0] = 0; // reset input to zero (to create the impulse) 
-
-	wave = y[0];
+	
+	wave = table[(int)(sine_freq / (float)sampling_freq * (float)SINE_TABLE_SIZE * sine_index) % SINE_TABLE_SIZE];
+	
+	sine_index++;
 
     return(wave);
     
