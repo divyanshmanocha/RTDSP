@@ -58,3 +58,4 @@ intio.obj: C:/EEE/CCStudio4.1/ccsv4/tools/compiler/c6000/include/mathl.h
 intio.obj: C:/EEE/CCStudio4.1/ccsv4/tools/compiler/c6000/include/unaccess.h
 intio.obj: C:/EEE/CCStudio4.1/ccsv4/C6000/dsk6713/include/helper_functions_ISR.h
 intio.obj: C:/EEE/CCStudio4.1/ccsv4/tools/compiler/c6000/include/math.h
+intio.obj: C:/EEE/CCStudio4.1/ccsv4/C6000/dsk6713/include/helper_functions_polling.h

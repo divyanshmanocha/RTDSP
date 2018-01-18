@@ -37,6 +37,12 @@
 // Some functions to help with writing/reading the audio ports when using interrupts.
 #include <helper_functions_ISR.h>
 
+// Some functions to help with configuring hardware
+#include "helper_functions_polling.h"
+
+// PI defined here for use in your code 
+#define PI 3.141592653589793
+
 /******************************* Global declarations ********************************/
 
 /* Audio port configuration settings: these values set registers in the AIC23 audio 
@@ -62,25 +68,47 @@ DSK6713_AIC23_Config Config = { \
 // Codec handle:- a variable used to identify audio interface  
 DSK6713_AIC23_CodecHandle H_Codec;
 
-short mono_in;
+
+/* Sampling frequency in HZ. Must only be set to 8000, 16000, 24000
+32000, 44100 (CD standard), 48000 or 96000  */ 
+int sampling_freq = 16000;
+
+/* Use this variable in your code to set the frequency of your sine wave 
+   be carefull that you do not set it above the current nyquist frequency! */
+float sine_freq = 2000.0;
+
+// Contains the size of the sine table
+#define SINE_TABLE_SIZE 256
+// Declares the global sine table that will be used to generate the sine wave
+float table[SINE_TABLE_SIZE];
+
+
+// Current index in the table, that can be used to calculate the next index
+int sine_index = 0;
+Int32 L_Gain = 2100000000;
+Int32 R_Gain = 2100000000;
+unsigned sine_phase_ind = 0;
 
  /******************************* Function prototypes ********************************/
 void init_hardware(void);     
 void init_HWI(void); 
 void ISR_AIC(void);
+void sine_init(void);
 /********************************** Main routine ************************************/
 void main(){      
 
  
 	// initialize board and the audio port
   init_hardware();
-	
+
+  sine_init();
   /* initialize hardware interrupts */
   init_HWI();
-  	 		
+
   /* loop indefinitely, waiting for interrupts */  					
-  while(1) 
-  {};
+  while(1) {
+  	
+  };
   
 }
         
@@ -107,7 +135,7 @@ void init_hardware()
 	MCBSP_FSETS(XCR1, XWDLEN1, 32BIT);	
 	MCBSP_FSETS(SPCR1, XINTM, FRM);	
 	
-
+	DSK6713_AIC23_setFreq(H_Codec, get_sampling_handle(&sampling_freq));
 }
 
 /********************************** init_HWI() **************************************/  
@@ -115,20 +143,73 @@ void init_HWI(void)
 {
 	IRQ_globalDisable();			// Globally disables interrupts
 	IRQ_nmiEnable();				// Enables the NMI interrupt (used by the debugger)
-	IRQ_map(IRQ_EVT_RINT1,4);		// Maps an event to a physical interrupt
-	IRQ_enable(IRQ_EVT_RINT1);		// Enables the event
+	IRQ_map(IRQ_EVT_XINT1,4);		// Maps an event to a physical interrupt
+	IRQ_enable(IRQ_EVT_XINT1);		// Enables the event
 	IRQ_globalEnable();				// Globally enables interrupts
 
 } 
 
 /******************** WRITE YOUR INTERRUPT SERVICE ROUTINE HERE***********************/  
+void sine_init(void)
+{
+	int i;
+	for(i = 0; i < SINE_TABLE_SIZE; i++)
+	{
+		table[i] = sin(2 * PI * i / SINE_TABLE_SIZE);
+	}
+}
 
+float sinegen(unsigned ind)
+{
+	float sample;
+	unsigned sample_index = round(ind * sine_freq * SINE_TABLE_SIZE / sampling_freq);
+	sample_index = sample_index % SINE_TABLE_SIZE;
+	sample = table[sample_index];
 
-  
+	return sample;
+}
+
+/********************************** Ex2 ***************************************/
 void ISR_AIC()
+{
+
+	
+	// temporary variable used to output values from function
+	float wave_out, wave;
+	sine_phase_ind = sine_phase_ind % sampling_freq;
+	wave = sinegen(sine_phase_ind++);
+	wave_out = wave < 0 ? wave : -wave;
+	
+	/*Rectifying the wave
+	if (!DSK6713_AIC23_write(H_Codec, ((Int32)(wave_out * L_Gain)))) {
+		#ifdef FILEIO
+        	puts("Left channel not ready")        
+        #endif
+	}
+	if (!DSK6713_AIC23_write(H_Codec, ((Int32)(wave_out * R_Gain)))) {
+		#ifdef FILEIO
+        	puts("Right channel not ready")       
+        #endif
+	}*/
+	
+	mono_write_16Bit((short)(wave_out*32767));
+	
+	set_samp_freq(&sampling_freq, Config, &H_Codec);
+	
+	/*Attempt 2 below:
+		out = (int)(wave_out*(pow(2,15)-1));
+		mono_in = mono_read_16Bit();
+		mono_write_16Bit(out); */
+}
+
+
+/********************************** Ex1 ***************************************/
+/*void ISR_AIC()
 {
 	short mono_out;
 	mono_in = mono_read_16Bit();
 	mono_out = mono_in; //mono_in < 0 ? -mono_in : mono_in;
 	mono_write_16Bit(mono_out);
 }
+*/
+
