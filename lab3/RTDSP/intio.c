@@ -92,24 +92,24 @@ unsigned sine_phase_ind = 0;
  /******************************* Function prototypes ********************************/
 void init_hardware(void);     
 void init_HWI(void); 
+float sinegen(void);
 void ISR_AIC(void);
 void sine_init(void);
 /********************************** Main routine ************************************/
-void main(){      
+void main(){
 
- 
 	// initialize board and the audio port
-  init_hardware();
+    init_hardware();
 
-  sine_init();
-  /* initialize hardware interrupts */
-  init_HWI();
+  	sine_init();
+  	/* initialize hardware interrupts */
+  	init_HWI();
 
-  /* loop indefinitely, waiting for interrupts */  					
-  while(1) {
+  	/* loop indefinitely, waiting for interrupts */  					
+  	while(1) {
   	
-  };
-  
+  	};
+
 }
         
 /********************************** init_hardware() **********************************/  
@@ -133,9 +133,7 @@ void init_hardware()
 	/* These commands do the same thing as above but applied to data transfers to  
 	the audio port */
 	MCBSP_FSETS(XCR1, XWDLEN1, 32BIT);	
-	MCBSP_FSETS(SPCR1, XINTM, FRM);	
-	
-	DSK6713_AIC23_setFreq(H_Codec, get_sampling_handle(&sampling_freq));
+	MCBSP_FSETS(SPCR1, XINTM, FRM);
 }
 
 /********************************** init_HWI() **************************************/  
@@ -159,47 +157,26 @@ void sine_init(void)
 	}
 }
 
-float sinegen(unsigned ind)
+float sinegen(void)
 {
 	float sample;
-	unsigned sample_index = round(ind * sine_freq * SINE_TABLE_SIZE / sampling_freq);
+	unsigned sample_index = sine_phase_ind * sine_freq * SINE_TABLE_SIZE / sampling_freq;
 	sample_index = sample_index % SINE_TABLE_SIZE;
 	sample = table[sample_index];
-
+	sine_phase_ind++;
 	return sample;
 }
 
 /********************************** Ex2 ***************************************/
-void ISR_AIC()
+void ISR_AIC(void)
 {
-
-	
 	// temporary variable used to output values from function
 	float wave_out, wave;
 	sine_phase_ind = sine_phase_ind % sampling_freq;
-	wave = sinegen(sine_phase_ind++);
+	wave = sinegen();
 	wave_out = wave < 0 ? wave : -wave;
-	
-	/*Rectifying the wave
-	if (!DSK6713_AIC23_write(H_Codec, ((Int32)(wave_out * L_Gain)))) {
-		#ifdef FILEIO
-        	puts("Left channel not ready")        
-        #endif
-	}
-	if (!DSK6713_AIC23_write(H_Codec, ((Int32)(wave_out * R_Gain)))) {
-		#ifdef FILEIO
-        	puts("Right channel not ready")       
-        #endif
-	}*/
-	
+
 	mono_write_16Bit((short)(wave_out*32767));
-	
-	set_samp_freq(&sampling_freq, Config, &H_Codec);
-	
-	/*Attempt 2 below:
-		out = (int)(wave_out*(pow(2,15)-1));
-		mono_in = mono_read_16Bit();
-		mono_write_16Bit(out); */
 }
 
 
