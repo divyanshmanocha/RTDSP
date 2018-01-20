@@ -147,7 +147,7 @@ void init_HWI(void)
 
 } 
 
-/******************** WRITE YOUR INTERRUPT SERVICE ROUTINE HERE***********************/  
+//Populates the table with appropriate sine values
 void sine_init(void)
 {
 	int i;
@@ -157,6 +157,7 @@ void sine_init(void)
 	}
 }
 
+//Returns the sample according to the sampling frequency
 float sinegen(void)
 {
 	unsigned sample_index = sine_phase_ind * sine_freq * SINE_TABLE_SIZE / sampling_freq;
@@ -164,6 +165,8 @@ float sinegen(void)
 	sine_phase_ind++;
 	return table[sample_index];
 }
+
+/******************** INTERRUPT SERVICE ROUTINE ***********************/  
 
 /********************************** Ex2 ***************************************/
 void ISR_AIC(void)
