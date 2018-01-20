@@ -159,12 +159,10 @@ void sine_init(void)
 
 float sinegen(void)
 {
-	float sample;
 	unsigned sample_index = sine_phase_ind * sine_freq * SINE_TABLE_SIZE / sampling_freq;
 	sample_index = sample_index % SINE_TABLE_SIZE;
-	sample = table[sample_index];
 	sine_phase_ind++;
-	return sample;
+	return table[sample_index];
 }
 
 /********************************** Ex2 ***************************************/
