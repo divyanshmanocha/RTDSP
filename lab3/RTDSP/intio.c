@@ -184,7 +184,7 @@ void ISR_AIC(void)
 /********************************** Ex1 ***************************************/
 /*void ISR_AIC()
 {
-	short mono_out;
+	short mono_out, mono_in;
 	mono_in = mono_read_16Bit();
 	mono_out = mono_in; //mono_in < 0 ? -mono_in : mono_in;
 	mono_write_16Bit(mono_out);
