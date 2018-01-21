@@ -133,7 +133,7 @@ void init_hardware()
 }
 
 /********************************** init_HWI() **************************************/
-void init_HWI(void)
+void init_HWI()
 {
     IRQ_globalDisable();            // Globally disables interrupts
     IRQ_nmiEnable();                // Enables the NMI interrupt (used by the debugger)
@@ -143,7 +143,7 @@ void init_HWI(void)
 }
 
 //Populates the table with appropriate sine values
-void sine_init(void)
+void sine_init()
 {
     int i;
     for(i = 0; i < SINE_TABLE_SIZE; i++)
@@ -153,7 +153,7 @@ void sine_init(void)
 }
 
 //Returns the sample according to the sampling frequency
-float sinegen(void)
+float sinegen()
 {
     unsigned sample_index = sine_phase_ind * sine_freq * SINE_TABLE_SIZE / sampling_freq;
     sample_index = sample_index % SINE_TABLE_SIZE;
@@ -164,7 +164,7 @@ float sinegen(void)
 /******************** INTERRUPT SERVICE ROUTINE ***********************/
 
 /********************************** Ex2 ***************************************/
-void ISR_AIC(void)
+void ISR_AIC()
 {
     // temporary variable used to output values from function
     float wave_out, wave;

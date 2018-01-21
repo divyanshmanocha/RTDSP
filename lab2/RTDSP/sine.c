@@ -170,7 +170,7 @@ void sine_init()
 }
 
 /********************************** sinegen() ***************************************/
-float sinegen(void)
+float sinegen()
 {
     // temporary variable used to output values from function
     float wave;
