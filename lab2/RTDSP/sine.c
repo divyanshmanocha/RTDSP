@@ -46,7 +46,6 @@
 #define SINE_TABLE_SIZE 256
 
 
-
 /******************************* Global declarations ********************************/
 
 /* Audio port configuration settings: these values set registers in the AIC23 audio
@@ -76,14 +75,6 @@ DSK6713_AIC23_CodecHandle H_Codec;
 32000, 44100 (CD standard), 48000 or 96000  */
 int sampling_freq = 16000;
 
-
-// Array of data used by sinegen to generate sine. These are the initial values.
-float y[3] = {0,0,0};
-float x[1] = {1}; // impulse to start filter
-
-float a0 = 1.4142; // coefficients for difference equation
-float b0 = 0.707;
-
 // Holds the value of the current sample
 float sample;
 
@@ -95,7 +86,7 @@ Int32 R_Gain = 2100000000;
 
 /* Use this variable in your code to set the frequency of your sine wave
    be carefull that you do not set it above the current nyquist frequency! */
-float sine_freq = 1000.0;
+float sine_freq = 1000.f;
 
 // Declares the global sine table that will be used to generate the sine wave
 float table[SINE_TABLE_SIZE];
