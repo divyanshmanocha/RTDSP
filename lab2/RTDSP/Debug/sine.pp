@@ -1,6 +1,6 @@
 # FIXED
 sine.obj: ../sine.c
-sine.obj: H:/RTDSPLab/lab2/RTDSP/Debug/dsp_bios_cfg.h
+sine.obj: C:/Github/RTDSP/lab2/RTDSP/Debug/dsp_bios_cfg.h
 sine.obj: C:/EEE/CCStudio4.1/bios_5_41_02_14/packages/ti/bios/include/std.h
 sine.obj: C:/EEE/CCStudio4.1/bios_5_41_02_14/packages/ti/bios/include/tistdtypes.h
 sine.obj: C:/EEE/CCStudio4.1/bios_5_41_02_14/packages/ti/bios/include/hst.h
