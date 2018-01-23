@@ -68,39 +68,18 @@ DSK6713_AIC23_Config Config = { \
 // Codec handle:- a variable used to identify audio interface
 DSK6713_AIC23_CodecHandle H_Codec;
 
-
-/* Sampling frequency in HZ. Must only be set to 8000, 16000, 24000
-32000, 44100 (CD standard), 48000 or 96000  */
-int sampling_freq = 16000;
-
-/* Use this variable in your code to set the frequency of your sine wave
-   be carefull that you do not set it above the current nyquist frequency! */
-float sine_freq = 2000.0;
-
-// Contains the size of the sine table
-#define SINE_TABLE_SIZE 256
-// Declares the global sine table that will be used to generate the sine wave
-float table[SINE_TABLE_SIZE];
-
-
-// Current index in the table, that can be used to calculate the next index
-int sine_index = 0;
-Int32 L_Gain = 2100000000;
-Int32 R_Gain = 2100000000;
-unsigned sine_phase_ind = 0;
-
- /******************************* Function prototypes ********************************/
+/******************************* Function prototypes ********************************/
 void init_hardware(void);
 void init_HWI(void);
 float sinegen(void);
 void ISR_AIC(void);
 void sine_init(void);
+
 /********************************** Main routine ************************************/
 void main(){
     // initialize board and the audio port
     init_hardware();
 
-    sine_init();
     /* initialize hardware interrupts */
     init_HWI();
 
@@ -137,52 +116,16 @@ void init_HWI()
 {
     IRQ_globalDisable();            // Globally disables interrupts
     IRQ_nmiEnable();                // Enables the NMI interrupt (used by the debugger)
-    IRQ_map(IRQ_EVT_XINT1,4);        // Maps an event to a physical interrupt
-    IRQ_enable(IRQ_EVT_XINT1);        // Enables the event
+    IRQ_map(IRQ_EVT_RINT1,4);        // Maps an event to a physical interrupt
+    IRQ_enable(IRQ_EVT_RINT1);        // Enables the event
     IRQ_globalEnable();                // Globally enables interrupts
 }
 
-//Populates the table with appropriate sine values
-void sine_init()
-{
-    int i;
-    for(i = 0; i < SINE_TABLE_SIZE; i++)
-    {
-        table[i] = sin(2 * PI * i / SINE_TABLE_SIZE);
-    }
-}
-
-//Returns the sample according to the sampling frequency
-float sinegen()
-{
-    unsigned sample_index = sine_phase_ind * sine_freq * SINE_TABLE_SIZE / sampling_freq;
-    sample_index = sample_index % SINE_TABLE_SIZE;
-    sine_phase_ind++;
-    return table[sample_index];
-}
-
 /******************** INTERRUPT SERVICE ROUTINE ***********************/
-
-/********************************** Ex2 ***************************************/
 void ISR_AIC()
-{
-    // temporary variable used to output values from function
-    float wave_out, wave;
-    sine_phase_ind = sine_phase_ind % sampling_freq;
-    wave = sinegen();
-    wave_out = wave < 0 ? wave : -wave;
-
-    mono_write_16Bit((short)(wave_out*32767));
-}
-
-
-/********************************** Ex1 ***************************************/
-/*void ISR_AIC()
 {
     short mono_out, mono_in;
     mono_in = mono_read_16Bit();
-    mono_out = mono_in; //mono_in < 0 ? -mono_in : mono_in;
+    mono_out = mono_in < 0 ? mono_in : -mono_in;
     mono_write_16Bit(mono_out);
 }
-*/
-
