@@ -168,7 +168,7 @@ float sinegen()
 
     wave = table[(int)((sine_freq / (float)sampling_freq) * (float)SINE_TABLE_SIZE * (float)sine_index) % SINE_TABLE_SIZE];
 
-    sine_index = (sine_index + 1) % sampling_freq;
+    sine_index++;
 
     return wave;
 }
