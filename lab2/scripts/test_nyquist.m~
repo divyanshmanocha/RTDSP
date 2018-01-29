@@ -1,0 +1,4 @@
+wave39 = gensin(1, 3900, 96000, 0, 1, 100);
+wave41 = 
+
+plot(wave)
