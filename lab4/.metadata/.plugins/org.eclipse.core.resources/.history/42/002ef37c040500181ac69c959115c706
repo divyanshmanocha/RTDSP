@@ -36,7 +36,7 @@
 
 // Some functions to help with writing/reading the audio ports when using interrupts.
 #include <helper_functions_ISR.h>
-#include "Matlab/filter_coeff.txt"
+#include "Matlab/filter_coeff_2.txt"
 // Some functions to help with configuring hardware
 #include "helper_functions_polling.h"
 
@@ -141,10 +141,19 @@ void ISR_AIC()
 //	mono_write_16Bit(sample_in);
 }
 
-// Perform linear convolution
+//Convolve the 
 short non_circ_fir()
 {
-
+/*	double y[N + M - 1];
+	int i, M, j;
+	M = sizeof(b)/sizeof(b[0]);
+	
+	for (i = 0; i < N + M - 1; i++) {
+		for (j = 0; j < i -1; j++) {
+			y[i] = y[i] + b[j]*h[i-j-1];
+		}
+		
+	}*/
 	double y = 0;
 	int M, i;
 	M = sizeof(b) / sizeof(b[0]);
@@ -153,4 +162,3 @@ short non_circ_fir()
 	}
 	return y*32767;
 }
-
