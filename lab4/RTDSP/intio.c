@@ -128,17 +128,20 @@ void ISR_AIC()
 	unsigned int i;
 	short sample_in, sample_out;
 	
+	//Read the values
 	sample_in = mono_read_16Bit();
 	
+	//Shift the array before inserting the values
 	for (i = N-1; i > 0; i--) {
 		x[i] = x[i-1];	
 	}
+	//Convert to a double
 	x[0] = (float) sample_in / 32767.f;
 
+	//Output the linear convolution
 	sample_out = non_circ_fir();
 	
 	mono_write_16Bit(sample_out);
-//	mono_write_16Bit(sample_in);
 }
 
 // Perform linear convolution
@@ -148,9 +151,10 @@ short non_circ_fir()
 	double y = 0;
 	int M, i;
 	M = sizeof(b) / sizeof(b[0]);
+	//Standard Convolutional loop
 	for(i = 0; i < N; i++) {
 			y += x[i] * b[M-i-1];
 	}
+	//Convert back to an integer
 	return y*32767;
 }
-
