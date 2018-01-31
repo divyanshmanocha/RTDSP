@@ -44,7 +44,8 @@
 // PI defined here for use in your code
 #define PI 3.141592653589793
 #define N 249
-double x[N];
+double buffer[N];
+unsigned int ptr = N-1;
 
 /******************************* Global declarations ********************************/
 
@@ -125,20 +126,16 @@ void init_HWI()
 /******************** INTERRUPT SERVICE ROUTINE ***********************/
 void ISR_AIC()
 {
-	unsigned int i;
 	short sample_in, sample_out;
 	
 	sample_in = mono_read_16Bit();
-	
-	for (i = N-1; i > 0; i--) {
-		x[i] = x[i-1];	
-	}
-	x[0] = (float) sample_in / 32767.f;
-
+	buffer[ptr] = (float) sample_in / 32767.f;
 	sample_out = non_circ_fir();
-	
 	mono_write_16Bit(sample_out);
-//	mono_write_16Bit(sample_in);
+	
+	ptr--;
+	if (ptr == 0)
+		ptr = N-1;
 }
 
 // Perform linear convolution
@@ -149,7 +146,7 @@ short non_circ_fir()
 	int M, i;
 	M = sizeof(b) / sizeof(b[0]);
 	for(i = 0; i < N; i++) {
-			y += x[i] * b[M-i-1];
+			y += buffer[i] * b[M-i-1];
 	}
 	return y*32767;
 }
