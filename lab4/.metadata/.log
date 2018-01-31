@@ -151,3 +151,9 @@ org.eclipse.core.internal.resources.ResourceException: Resource is out of sync w
 	at org.eclipse.core.launcher.Main.main(Main.java:971)
 !SUBENTRY 1 org.eclipse.core.resources 4 274 2018-01-29 14:55:00.997
 !MESSAGE Resource is out of sync with the file system: /RTDSP/.launches/RTDSP.launch.
+
+!ENTRY com.ti.ccstudio.debug.core 4 5 2018-01-31 10:59:32.937
+!MESSAGE Failed to load program 'C:\GIT\RTDSP\lab4\RTDSP\Debug\RTDSP.out' on target 'Spectrum Digital DSK-EVM-eZdsp onboard USB Emulator_0/TMS320C671X'.
+
+Reason:
+File is not available

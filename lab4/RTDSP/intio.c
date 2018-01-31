@@ -44,7 +44,7 @@
 // PI defined here for use in your code
 #define PI 3.141592653589793
 #define N 249
-double buffer[N];
+double buffer[N]= {0};
 unsigned int ptr = N-1;
 
 /******************************* Global declarations ********************************/
@@ -133,9 +133,9 @@ void ISR_AIC()
 	sample_out = non_circ_fir();
 	mono_write_16Bit(sample_out);
 	
-	ptr--;
 	if (ptr == 0)
-		ptr = N-1;
+		ptr = N;
+	ptr--;
 }
 
 // Perform linear convolution
