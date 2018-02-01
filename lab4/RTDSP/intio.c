@@ -44,7 +44,7 @@
 // PI defined here for use in your code
 #define PI 3.141592653589793
 #define N 249
-double x[N];
+short x[N];
 
 /******************************* Global declarations ********************************/
 
@@ -127,7 +127,8 @@ void ISR_AIC()
 {
 	unsigned int i;
 	short sample_in, sample_out;
-	
+	double y;
+	y = 0;
 	//Read the values
 	sample_in = mono_read_16Bit();
 	
@@ -136,25 +137,16 @@ void ISR_AIC()
 		x[i] = x[i-1];	
 	}
 	//Convert to a double
-	x[0] = (float) sample_in / 32767.f;
+	x[0] = sample_in;
 
-	//Output the linear convolution
-	sample_out = non_circ_fir();
-	
-	mono_write_16Bit(sample_out);
-}
 
-// Perform linear convolution
-short non_circ_fir()
-{
-
-	double y = 0;
-	int M, i;
-	M = sizeof(b) / sizeof(b[0]);
 	//Standard Convolutional loop
 	for(i = 0; i < N; i++) {
-			y += x[i] * b[M-i-1];
+			y += x[i] * b[N-i-1];
 	}
 	//Convert back to an integer
-	return y*32767;
+	sample_out = y;
+	//Output the linear convolution
+	
+	mono_write_16Bit(sample_out);
 }
