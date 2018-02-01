@@ -76,7 +76,7 @@ DSK6713_AIC23_CodecHandle H_Codec;
 void init_hardware(void);
 void init_HWI(void);
 void ISR_AIC(void);
-short non_circ_fir(void);
+short circ_fir(void);
 /********************************** Main routine ************************************/
 void main(){
     // initialize board and the audio port
@@ -129,8 +129,8 @@ void ISR_AIC()
 	short sample_in, sample_out;
 	
 	sample_in = mono_read_16Bit();
-	buffer[ptr] = (float) sample_in / 32767.f;
-	sample_out = non_circ_fir();
+	buffer[ptr] = (double) sample_in / 30000.0;
+	sample_out = circ_fir();
 	mono_write_16Bit(sample_out);
 	
 	if (ptr == 0)
@@ -139,15 +139,12 @@ void ISR_AIC()
 }
 
 // Perform linear convolution
-short non_circ_fir()
+short circ_fir()
 {
-
 	double y = 0;
-	int M, i;
-	M = sizeof(b) / sizeof(b[0]);
+	int i;
 	for(i = 0; i < N; i++) {
-			y += buffer[i] * b[M-i-1];
+		y += buffer[(i+ptr)%N] * b[N-i-1];
 	}
-	return y*32767;
+	return y*30000;
 }
-
