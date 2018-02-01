@@ -1,23 +1,4 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <States>
-<Expressions>
-<Expression IMemento.internal.id="x[0]">
-<Format/>
-</Expression>
-<Expression IMemento.internal.id="x[1]">
-<Format/>
-</Expression>
-<Expression IMemento.internal.id="x[2]">
-<Format/>
-</Expression>
-<Expression IMemento.internal.id="x[3]">
-<Format/>
-</Expression>
-<Expression IMemento.internal.id="x[4]">
-<Format/>
-</Expression>
-<Expression IMemento.internal.id="x[5]">
-<Format/>
-</Expression>
-</Expressions>
+<Expressions/>
 </States>
