@@ -134,16 +134,14 @@ void ISR_AIC()
 	
 	//Shift the array before inserting the values
 	for (i = N-1; i > 0; i--) {
-		x[i] = x[i-1];	
+		x[i] = x[i-1];
+		y += x[i] * b[N-i-1];
 	}
 	//Convert to a double
 	x[0] = sample_in;
+	
+	y += x[0] * b[N-1];
 
-
-	//Standard Convolutional loop
-	for(i = 0; i < N; i++) {
-			y += x[i] * b[N-i-1];
-	}
 	//Convert back to an integer
 	sample_out = y;
 	//Output the linear convolution

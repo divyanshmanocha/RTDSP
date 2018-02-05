@@ -282,6 +282,7 @@
 <page content="org.eclipse.help.ui.HelpView" label="LabelNotFound"/>
 <page content="org.eclipse.ui.internal.introview" label="LabelNotFound"/>
 <page content="org.eclipse.ui.cheatsheets.views.CheatSheetView" label="LabelNotFound"/>
+<presentation id="org.eclipse.ui.presentations.WorkbenchPresentationFactory"/>
 </folder>
 </info>
 <info folder="true" part="org.eclipse.ui.internal.ViewStack@80ae91" ratio="0.7497349" ratioLeft="707" ratioRight="236" relationship="4" relative="org.eclipse.debug.internal.ui.BreakpointFolderView">
@@ -323,74 +324,7 @@
 <navigationHistory>
 <editors>
 <editor factoryID="org.eclipse.ui.part.FileEditorInputFactory" id="org.eclipse.cdt.ui.editor.CEditor" path="/RTDSP/intio.c"/>
-<editor factoryID="org.eclipse.ui.part.FileEditorInputFactory" id="org.eclipse.cdt.ui.editor.asm.AsmEditor" path="/RTDSP/Debug/dsp_bios_cfg.s62"/>
 </editors>
-<item historyLabel="intio.c" index="0">
-<position info="not_deleted" x="3623" y="0"/>
-</item>
-<item historyLabel="intio.c" index="0">
-<position info="not_deleted" x="5632" y="0"/>
-</item>
-<item historyLabel="dsp_bios_cfg.s62" index="1">
-<position/>
-</item>
-<item historyLabel="intio.c" index="0">
-<position info="not_deleted" x="480" y="0"/>
-</item>
-<item historyLabel="intio.c" index="0">
-<position info="not_deleted" x="3738" y="0"/>
-</item>
-<item historyLabel="intio.c" index="0">
-<position/>
-</item>
-<item historyLabel="intio.c" index="0">
-<position info="not_deleted" x="3738" y="0"/>
-</item>
-<item historyLabel="intio.c" index="0">
-<position info="not_deleted" x="5509" y="0"/>
-</item>
-<item historyLabel="intio.c" index="0">
-<position info="not_deleted" x="5737" y="0"/>
-</item>
-<item historyLabel="intio.c" index="0">
-<position info="not_deleted" x="6018" y="0"/>
-</item>
-<item historyLabel="intio.c" index="0">
-<position info="not_deleted" x="5733" y="0"/>
-</item>
-<item historyLabel="intio.c" index="0">
-<position info="not_deleted" x="3738" y="0"/>
-</item>
-<item historyLabel="intio.c" index="0">
-<position info="not_deleted" x="5509" y="0"/>
-</item>
-<item historyLabel="intio.c" index="0">
-<position info="not_deleted" x="6018" y="0"/>
-</item>
-<item historyLabel="intio.c" index="0">
-<position info="not_deleted" x="5636" y="0"/>
-</item>
-<item historyLabel="intio.c" index="0">
-<position info="not_deleted" x="5803" y="0"/>
-</item>
-<item historyLabel="intio.c" index="0">
-<position info="not_deleted" x="5580" y="0"/>
-</item>
-<item historyLabel="intio.c" index="0">
-<position info="not_deleted" x="3738" y="0"/>
-</item>
-<item historyLabel="intio.c" index="0">
-<position info="not_deleted" x="5509" y="0"/>
-</item>
-<item historyLabel="intio.c" index="0">
-<position info="not_deleted" x="5864" y="0"/>
-</item>
-<item historyLabel="intio.c" index="0">
-<position info="not_deleted" x="5641" y="0"/>
-</item>
-<item historyLabel="intio.c" index="0">
-<position info="not_deleted" x="6018" y="0"/>
-</item>
 <item historyLabel="intio.c" index="0">
 <position info="not_deleted" x="5509" y="0"/>
 </item>
@@ -472,8 +406,74 @@
 <item historyLabel="intio.c" index="0">
 <position info="not_deleted" x="5921" y="0"/>
 </item>
-<item active="true" historyLabel="intio.c" index="0">
+<item historyLabel="intio.c" index="0">
 <position info="not_deleted" x="3737" y="0"/>
+</item>
+<item historyLabel="intio.c" index="0">
+<position info="not_deleted" x="3737" y="0"/>
+</item>
+<item historyLabel="intio.c" index="0">
+<position info="not_deleted" x="5508" y="0"/>
+</item>
+<item historyLabel="intio.c" index="0">
+<position info="not_deleted" x="5951" y="0"/>
+</item>
+<item historyLabel="intio.c" index="0">
+<position info="not_deleted" x="5508" y="0"/>
+</item>
+<item historyLabel="intio.c" index="0">
+<position info="not_deleted" x="5951" y="0"/>
+</item>
+<item historyLabel="intio.c" index="0">
+<position info="not_deleted" x="5508" y="0"/>
+</item>
+<item historyLabel="intio.c" index="0">
+<position info="not_deleted" x="5951" y="0"/>
+</item>
+<item historyLabel="intio.c" index="0">
+<position info="not_deleted" x="5508" y="0"/>
+</item>
+<item historyLabel="intio.c" index="0">
+<position info="not_deleted" x="5951" y="0"/>
+</item>
+<item historyLabel="intio.c" index="0">
+<position info="not_deleted" x="5508" y="0"/>
+</item>
+<item historyLabel="intio.c" index="0">
+<position info="not_deleted" x="5951" y="0"/>
+</item>
+<item historyLabel="intio.c" index="0">
+<position info="not_deleted" x="5675" y="0"/>
+</item>
+<item historyLabel="intio.c" index="0">
+<position info="not_deleted" x="3737" y="0"/>
+</item>
+<item historyLabel="intio.c" index="0">
+<position info="not_deleted" x="5508" y="0"/>
+</item>
+<item historyLabel="intio.c" index="0">
+<position info="not_deleted" x="5951" y="0"/>
+</item>
+<item historyLabel="intio.c" index="0">
+<position info="not_deleted" x="5508" y="0"/>
+</item>
+<item historyLabel="intio.c" index="0">
+<position info="not_deleted" x="5951" y="0"/>
+</item>
+<item historyLabel="intio.c" index="0">
+<position info="not_deleted" x="5508" y="0"/>
+</item>
+<item historyLabel="intio.c" index="0">
+<position info="not_deleted" x="5951" y="0"/>
+</item>
+<item historyLabel="intio.c" index="0">
+<position info="not_deleted" x="5508" y="0"/>
+</item>
+<item historyLabel="intio.c" index="0">
+<position info="not_deleted" x="5951" y="0"/>
+</item>
+<item active="true" historyLabel="intio.c" index="0">
+<position info="not_deleted" x="5508" y="0"/>
 </item>
 </navigationHistory>
 <stickyState>
