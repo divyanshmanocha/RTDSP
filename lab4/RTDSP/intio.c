@@ -45,7 +45,7 @@
 #define PI 3.141592653589793
 #define N 249
 double buffer[N]= {0};
-unsigned int ptr = N-1;
+unsigned ptr = N-1;
 
 /******************************* Global declarations ********************************/
 
@@ -126,13 +126,8 @@ void init_HWI()
 /******************** INTERRUPT SERVICE ROUTINE ***********************/
 void ISR_AIC()
 {
-	short sample_in, sample_out;
-	
-	sample_in = mono_read_16Bit();
-	buffer[ptr] = (double) sample_in / 30000.0;
-	sample_out = circ_fir();
-	mono_write_16Bit(sample_out);
-	
+	buffer[ptr] = (double) mono_read_16Bit();
+	mono_write_16Bit((short)circ_fir());
 	if (ptr == 0)
 		ptr = N;
 	ptr--;
@@ -142,9 +137,12 @@ void ISR_AIC()
 short circ_fir()
 {
 	double y = 0;
-	int i;
-	for(i = 0; i < N; i++) {
-		y += buffer[(i+ptr)%N] * b[N-i-1];
+	int i = 0;
+	for(; i+ptr < N; i++) {
+		y += buffer[i+ptr] * b[N-i-1];
 	}
-	return y*30000;
+	for(; i < N; i++) {
+		y += buffer[i+ptr-N] * b[N-i-1];
+	}
+	return y;
 }

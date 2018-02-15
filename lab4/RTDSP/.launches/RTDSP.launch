@@ -12,8 +12,8 @@
 <stringAttribute key="com.ti.ccstudio.debug.core.DISPLAY_NAME_FORMAT" value="RTDSP [Debug] - {0}"/>
 <stringAttribute key="CCEDebugOptions.TARGET_CONFIGURATION_OPTION" value="full"/>
 <stringAttribute key="org.eclipse.cdt.launch.MEMORY_BLOCKS" value="&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;&#13;&#10;&lt;memoryBlockExpressionList/&gt;&#13;&#10;"/>
-<stringAttribute key="com.ti.ccstudio.debug.core.MRU_PROGRAM_NAME" value="C:\GIT\RTDSP\lab4\RTDSP\Debug\RTDSP.out"/>
-<stringAttribute key="com.ti.ccstudio.debug.core.MRU_MODULES" value="&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;&#13;&#10;&lt;modules&gt;&#13;&#10;&lt;module name=&quot;C:\GIT\RTDSP\lab3\RTDSP\Debug\RTDSP.out&quot; time=&quot;Fri Jan 19 14:07:28 GMT 2018&quot; time_long=&quot;1516370848357&quot;/&gt;&#13;&#10;&lt;module name=&quot;C:\Github\RTDSP\lab3\RTDSP\Debug\RTDSP.out&quot; time=&quot;Tue Jan 23 11:15:11 GMT 2018&quot; time_long=&quot;1516706111426&quot;/&gt;&#13;&#10;&lt;module name=&quot;C:\GIT\RTDSP\lab4\RTDSP\Debug\RTDSP.out&quot; time=&quot;Thu Feb 01 11:44:21 GMT 2018&quot; time_long=&quot;1517485461898&quot;/&gt;&#13;&#10;&lt;/modules&gt;&#13;&#10;"/>
+<stringAttribute key="com.ti.ccstudio.debug.core.MRU_PROGRAM_NAME" value="C:\github\RTDSP\lab4\RTDSP\Debug\RTDSP.out"/>
+<stringAttribute key="com.ti.ccstudio.debug.core.MRU_MODULES" value="&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;&#13;&#10;&lt;modules&gt;&#13;&#10;&lt;module name=&quot;C:\GIT\RTDSP\lab3\RTDSP\Debug\RTDSP.out&quot; time=&quot;Fri Jan 19 14:07:28 GMT 2018&quot; time_long=&quot;1516370848357&quot;/&gt;&#13;&#10;&lt;module name=&quot;C:\Github\RTDSP\lab3\RTDSP\Debug\RTDSP.out&quot; time=&quot;Tue Jan 23 11:15:11 GMT 2018&quot; time_long=&quot;1516706111426&quot;/&gt;&#13;&#10;&lt;module name=&quot;C:\GIT\RTDSP\lab4\RTDSP\Debug\RTDSP.out&quot; time=&quot;Thu Feb 01 11:44:21 GMT 2018&quot; time_long=&quot;1517485461898&quot;/&gt;&#13;&#10;&lt;module name=&quot;C:\github\RTDSP\lab4\RTDSP\Debug\RTDSP.out&quot; time=&quot;Thu Feb 15 13:55:55 GMT 2018&quot; time_long=&quot;1518702955359&quot;/&gt;&#13;&#10;&lt;/modules&gt;&#13;&#10;"/>
 <stringAttribute key="CCEDebugOptions.CPU_NAME" value="Spectrum Digital DSK-EVM-eZdsp onboard USB Emulator_0/TMS320C671X"/>
 <stringAttribute key="org.eclipse.cdt.launch.PROJECT_ATTR" value="RTDSP"/>
 <stringAttribute key="org.eclipse.cdt.launch.GLOBAL_VARIABLES" value="&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;&#13;&#10;&lt;globalVariableList/&gt;&#13;&#10;"/>
@@ -21,6 +21,6 @@
 <stringAttribute key="org.eclipse.cdt.launch.PROGRAM_NAME" value="Debug/RTDSP.out"/>
 <stringAttribute key="CCEDebugOptions.CPU_ISA" value="TMS320C671X"/>
 <stringAttribute key="com.ti.ccstudio.debug.core.BUILD_CONFIGURATION" value="Debug"/>
-<stringAttribute key="CCEDebugOptions.TARGET_CONFIGURATION_FILE" value="C:\GIT\RTDSP\lab4\RTDSP\NewTargetConfiguration.ccxml"/>
+<stringAttribute key="CCEDebugOptions.TARGET_CONFIGURATION_FILE" value="C:\github\RTDSP\lab4\RTDSP\NewTargetConfiguration.ccxml"/>
 <stringAttribute key="org.eclipse.debug.core.source_locator_id" value="com.ti.ccstudio.debug.core.sourceLocator"/>
 </launchConfiguration>
