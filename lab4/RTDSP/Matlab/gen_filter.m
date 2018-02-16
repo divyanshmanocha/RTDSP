@@ -1,5 +1,5 @@
 Fs = 8000;
-b = Untitled;
+b = m_filter(Fs);
 freqz(b, 1, 1024, Fs);
 
-save filter_coeff_2.txt b -ASCII -DOUBLE -TABS
+%save filter_coeff.txt b -ASCII -DOUBLE -TABS
