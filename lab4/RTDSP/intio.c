@@ -44,7 +44,8 @@
 // PI defined here for use in your code
 #define PI 3.141592653589793
 #define N 249
-short x[N];
+double buffer[N]= {0};
+unsigned ptr = N-1;
 
 /******************************* Global declarations ********************************/
 
@@ -75,7 +76,7 @@ DSK6713_AIC23_CodecHandle H_Codec;
 void init_hardware(void);
 void init_HWI(void);
 void ISR_AIC(void);
-short non_circ_fir(void);
+short circ_fir(void);
 /********************************** Main routine ************************************/
 void main(){
     // initialize board and the audio port
@@ -125,26 +126,23 @@ void init_HWI()
 /******************** INTERRUPT SERVICE ROUTINE ***********************/
 void ISR_AIC()
 {
-	unsigned int i;
-	short sample_in, sample_out;
-	double y;
-	y = 0;
-	//Read the values
-	sample_in = mono_read_16Bit();
-	
-	//Shift the array before inserting the values
-	for (i = N-1; i > 0; i--) {
-		x[i] = x[i-1];
-		y += x[i] * b[N-i-1];
-	}
-	//Convert to a double
-	x[0] = sample_in;
-	
-	y += x[0] * b[N-1];
+	buffer[ptr] = (double) mono_read_16Bit();
+	mono_write_16Bit((short)circ_fir());
+	if (ptr == 0)
+		ptr = N;
+	ptr--;
+}
 
-	//Convert back to an integer
-	sample_out = y;
-	//Output the linear convolution
-	
-	mono_write_16Bit(sample_out);
+// Perform linear convolution
+short circ_fir()
+{
+	double y = 0;
+	int i = 0;
+	for(; i+ptr < N; i++) {
+		y += buffer[i+ptr] * b[N-i-1];
+	}
+	for(; i < N; i++) {
+		y += buffer[i+ptr-N] * b[N-i-1];
+	}
+	return y;
 }
