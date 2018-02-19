@@ -33,6 +33,8 @@ intio.obj: C:/EEE/CCStudio4.1/bios_5_41_02_14/packages/ti/bios/include/_hook.h
 intio.obj: C:/EEE/CCStudio4.1/bios_5_41_02_14/packages/ti/bios/include/log.h
 intio.obj: C:/EEE/CCStudio4.1/bios_5_41_02_14/packages/ti/bios/include/_log.h
 intio.obj: C:/EEE/CCStudio4.1/bios_5_41_02_14/packages/ti/bios/include/trc.h
+intio.obj: C:/EEE/CCStudio4.1/ccsv4/tools/compiler/c6000/include/stdint.h
+intio.obj: ../Matlab/filter_coeff.txt
 intio.obj: C:/EEE/CCStudio4.1/ccsv4/C6000/dsk6713/include/dsk6713.h
 intio.obj: C:/EEE/CCStudio4.1/ccsv4/C6000/csl/include/csl.h
 intio.obj: C:/EEE/CCStudio4.1/ccsv4/C6000/csl/include/csl_chip.h
@@ -58,5 +60,3 @@ intio.obj: C:/EEE/CCStudio4.1/ccsv4/tools/compiler/c6000/include/mathl.h
 intio.obj: C:/EEE/CCStudio4.1/ccsv4/tools/compiler/c6000/include/unaccess.h
 intio.obj: C:/EEE/CCStudio4.1/ccsv4/C6000/dsk6713/include/helper_functions_ISR.h
 intio.obj: C:/EEE/CCStudio4.1/ccsv4/tools/compiler/c6000/include/math.h
-intio.obj: ../Matlab/filter_coeff.txt
-intio.obj: C:/EEE/CCStudio4.1/ccsv4/C6000/dsk6713/include/helper_functions_polling.h
