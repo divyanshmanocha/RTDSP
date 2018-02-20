@@ -33,17 +33,17 @@
 
 // math library (trig functions)
 #include <math.h>
-
+#include <stdint.h>
 // Some functions to help with writing/reading the audio ports when using interrupts.
 #include <helper_functions_ISR.h>
-#include "Matlab/filter_coeff.txt"
+#include "Matlab/filter_coeff_256.txt"
 // Some functions to help with configuring hardware
 #include "helper_functions_polling.h"
 
 
 // PI defined here for use in your code
 #define PI 3.141592653589793
-#define N 249
+#define N 256
 double buffer[N]= {0};
 unsigned ptr = N-1;
 
@@ -134,15 +134,34 @@ void ISR_AIC()
 }
 
 // Perform linear convolution
-short circ_fir()
+/*short circ_fir()
 {
 	double y = 0;
 	int i = 0;
-	for(; i+ptr < N; i++) {
-		y += buffer[i+ptr] * b[N-i-1];
+	for(; i+ptr < N/2; i++) {
+		y += 2*buffer[i+ptr] * b[N-i-1];
 	}
+	y += buffer[i+ptr] * 
 	for(; i < N; i++) {
 		y += buffer[i+ptr-N] * b[N-i-1];
 	}
+	return y;
+}
+*/
+
+short circ_fir()
+{
+	double y = 0;
+	int i;
+	uint8_t t;
+	//for(i = 0; i < 128; i++) {
+	//	y += 2*buffer[(i+ptr) & 255] * b[N-i-1];
+	//}
+	for (i = 0; i < 128; ++i) {
+		t = i + ptr;
+		y += 2*buffer[t] * b[N-i-1];
+	}
+	//y += buffer[128+ptr] * b[N-128-1];
+	y += buffer[128+ptr] * b[127];
 	return y;
 }

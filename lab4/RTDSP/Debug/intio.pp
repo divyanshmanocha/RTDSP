@@ -2,7 +2,7 @@
 intio.obj: ../intio.c
 intio.obj: C:/EEE/CCStudio4.1/ccsv4/tools/compiler/c6000/include/stdlib.h
 intio.obj: C:/EEE/CCStudio4.1/ccsv4/tools/compiler/c6000/include/linkage.h
-intio.obj: C:/GIT/RTDSP/lab4/RTDSP/Debug/dsp_bios_cfg.h
+intio.obj: C:/RTDSP/lab4/RTDSP/Debug/dsp_bios_cfg.h
 intio.obj: C:/EEE/CCStudio4.1/bios_5_41_02_14/packages/ti/bios/include/std.h
 intio.obj: C:/EEE/CCStudio4.1/bios_5_41_02_14/packages/ti/bios/include/tistdtypes.h
 intio.obj: C:/EEE/CCStudio4.1/bios_5_41_02_14/packages/ti/bios/include/hst.h
@@ -56,7 +56,8 @@ intio.obj: C:/EEE/CCStudio4.1/ccsv4/tools/compiler/c6000/include/mathf.h
 intio.obj: C:/EEE/CCStudio4.1/ccsv4/tools/compiler/c6000/include/unaccess.h
 intio.obj: C:/EEE/CCStudio4.1/ccsv4/tools/compiler/c6000/include/mathl.h
 intio.obj: C:/EEE/CCStudio4.1/ccsv4/tools/compiler/c6000/include/unaccess.h
+intio.obj: C:/EEE/CCStudio4.1/ccsv4/tools/compiler/c6000/include/stdint.h
 intio.obj: C:/EEE/CCStudio4.1/ccsv4/C6000/dsk6713/include/helper_functions_ISR.h
 intio.obj: C:/EEE/CCStudio4.1/ccsv4/tools/compiler/c6000/include/math.h
-intio.obj: ../Matlab/filter_coeff.txt
+intio.obj: ../Matlab/filter_coeff_256.txt
 intio.obj: C:/EEE/CCStudio4.1/ccsv4/C6000/dsk6713/include/helper_functions_polling.h
