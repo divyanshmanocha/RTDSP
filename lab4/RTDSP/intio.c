@@ -44,8 +44,11 @@
 // PI defined here for use in your code
 #define PI 3.141592653589793
 #define N 256
-double buffer[N]= {0};
-unsigned ptr = N-1;
+int16_t buffer[N]= {0};
+uint8_t ptr1 = N-1;
+uint8_t ptr2 = 0;
+uint8_t ptr1_;
+uint8_t ptr2_;
 
 /******************************* Global declarations ********************************/
 
@@ -126,42 +129,14 @@ void init_HWI()
 /******************** INTERRUPT SERVICE ROUTINE ***********************/
 void ISR_AIC()
 {
-	buffer[ptr] = (double) mono_read_16Bit();
-	mono_write_16Bit((short)circ_fir());
-	if (ptr == 0)
-		ptr = N;
-	ptr--;
-}
-
-// Perform linear convolution
-/*short circ_fir()
-{
-	double y = 0;
 	int i = 0;
-	for(; i+ptr < N/2; i++) {
-		y += 2*buffer[i+ptr] * b[N-i-1];
+	double sum = 0;
+	ptr1_ = ptr1;
+	ptr2_ = ptr1+N-1;
+	buffer[ptr1] = mono_read_16Bit();
+	--ptr1;
+	for(; i < 128; ++i) {
+		sum += (buffer[ptr1_++] + buffer[ptr2_--]) * b[i];
 	}
-	y += buffer[i+ptr] * 
-	for(; i < N; i++) {
-		y += buffer[i+ptr-N] * b[N-i-1];
-	}
-	return y;
-}
-*/
-
-short circ_fir()
-{
-	double y = 0;
-	int i;
-	uint8_t t;
-	//for(i = 0; i < 128; i++) {
-	//	y += 2*buffer[(i+ptr) & 255] * b[N-i-1];
-	//}
-	for (i = 0; i < 128; ++i) {
-		t = i + ptr;
-		y += 2*buffer[t] * b[N-i-1];
-	}
-	//y += buffer[128+ptr] * b[N-128-1];
-	y += buffer[128+ptr] * b[127];
-	return y;
+	mono_write_16Bit((short)sum);
 }
