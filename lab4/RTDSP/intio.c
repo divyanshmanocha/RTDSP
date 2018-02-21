@@ -48,7 +48,7 @@ int16_t buffer[N]= {0};
 // Global pointers to the buffer
 uint8_t ptr1 = N-1;
 // Points to the current buffer position to be inserted
-uint8_t ptr2 = 0;
+// uint8_t ptr2 = 0;
 // Points to the required start
 uint8_t ptr1_;
 // Iterative pointer 
