@@ -45,10 +45,15 @@
 #define PI 3.141592653589793
 #define N 256
 int16_t buffer[N]= {0};
+// Global pointers to the buffer
 uint8_t ptr1 = N-1;
+// Points to the current buffer position to be inserted
 uint8_t ptr2 = 0;
+// Points to the required start
 uint8_t ptr1_;
+// Iterative pointer 
 uint8_t ptr2_;
+// Iterative helper pointer
 
 /******************************* Global declarations ********************************/
 
@@ -130,13 +135,14 @@ void init_HWI()
 void ISR_AIC()
 {
 	int i = 0;
-	double sum = 0;
-	ptr1_ = ptr1;
-	ptr2_ = ptr1+N-1;
+	double sum = 0; 	   // The results will be stored here
+	ptr1_ = ptr1;		   // Setting the iterative pointer to its start
+	ptr2_ = ptr1-1;		   // Setting the helper pointer to its start
 	buffer[ptr1] = mono_read_16Bit();
 	--ptr1;
 	for(; i < 128; ++i) {
 		sum += (buffer[ptr1_++] + buffer[ptr2_--]) * b[i];
+		// Two values are calculated at once, requiring a loop of 128 iterations
 	}
 	mono_write_16Bit((short)sum);
 }
