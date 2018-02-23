@@ -42,10 +42,13 @@
 
 // PI defined here for use in your code
 #define PI 3.141592653589793
-short x[] = {0, 0};
-double y[] = {0.0, 0.0};
-double a[] = {1, -1.875/2.125};
-double b[] = {0.125/2.125, 0.125/2.125};
+#include "Matlab/filter_coeff_ell_a.txt"
+#include "Matlab/filter_coeff_ell_b.txt"
+
+int N = sizeof(a)/sizeof(a[0]);
+short* x;
+double* y;
+
 
 /******************************* Global declarations ********************************/
 
@@ -79,14 +82,24 @@ void ISR_AIC(void);
 short circ_fir(void);
 /********************************** Main routine ************************************/
 void main(){
+    int i;
+    x = (short*)calloc(N, sizeof(short));
+	y = (double*)calloc(N, sizeof(double));
     // initialize board and the audio port
     init_hardware();
 
     /* initialize hardware interrupts */
     init_HWI();
+	
+	/* Initialises array to 0 */
+	for (i = 0; i < N; ++i) {
+		y[i] = 0.0;
+		x[i] = 0;
+	}
 
     /* loop indefinitely, waiting for interrupts */
     while(1) {};
+    
 }
 
 /********************************** init_hardware() **********************************/
@@ -126,10 +139,22 @@ void init_HWI()
 /******************** INTERRUPT SERVICE ROUTINE ***********************/
 void ISR_AIC()
 {
-	x[1] = x[0];
+	int i;
+	
+	//Shift the values
+	for (i = N-1; i > 0; --i) {
+		x[i] = x[i-1];
+		y[i] = y[i-1];
+	}
+	
 	x[0] = mono_read_16Bit();
-	y[1] = y[0];
-	y[0] = b[0] * x[0] + b[1] * x[1] - a[1] * y[1];
+	y[0] = 0.0;
+	
+	for (i = 0; i < N; ++i) {
+		y[0] += b[i] * x[i];
+		if (i != 0)
+			y[0] -= a[i] * y[i];	
+	}
 	
 	mono_write_16Bit((short)y[0]);
 }
