@@ -121,12 +121,10 @@ void init_HWI()
 /******************** INTERRUPT SERVICE ROUTINE ***********************/
 void ISR_AIC()
 {
-	short t = mono_read_16Bit();
-	
 	x[1] = x[0];
-	//x[0] = mono_read_16Bit();
+	x[0] = mono_read_16Bit();
 	y[1] = y[0];
 	y[0] = b[0] * x[0] + b[1] * x[1] - a[1] * y[1];
 	
-	mono_write_16Bit(t);
+	mono_write_16Bit((short)y[0]);
 }
