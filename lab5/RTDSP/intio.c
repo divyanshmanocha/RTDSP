@@ -134,17 +134,13 @@ void ISR_AIC()
 	double Y = 0.0;
 
 	v[0] = mono_read_16Bit();
-
-	for (i = 1; i < N; ++i) {
-		v[0] -= a[i] * v[i];
-	}
+	Y = b[0] * v[0];
 
 	for (i = N-1; i > 0; --i) {
-		Y += b[i] * v[i];
+		v[0] -= a[i] * v[i];
+		Y += (b[i] - b[0] * a[i]) * v[i];
 		v[i] = v[i-1];
 	}
-	
-	Y += v[0] * b[0];
 
 	mono_write_16Bit((short)Y);
 }
