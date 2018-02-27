@@ -21,7 +21,7 @@ title('RC Circuit bode plot (R = 1000\Omega, C = 1\muF)');
 % Generate a square wave
 
 Fs = 8000;
-freq = 10;
+freq = 50;
 rep = Fs/freq/2;
 num = 5;
 
@@ -30,9 +30,7 @@ figure;
 plot(iir_filter([1, -0.882], [0.0588, 0.0588], squareWave));
 hold on;
 plot(squareWave);
-title('10 Hz Discrete Square Wave at Fs = 8kHz');
-legend('Output of RC circuit', 'Square wave input');
-xlabel('Sample');
-ylabel('Amplitude');
+title('50 Hz Discrete Square Wave at Fs = 8kHz');
+legend
 ylim([-0.2, 1.2]);
 grid on;
