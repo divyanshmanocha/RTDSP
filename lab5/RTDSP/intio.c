@@ -1,16 +1,11 @@
 /*************************************************************************************
                    DEPARTMENT OF ELECTRICAL AND ELECTRONIC ENGINEERING
                                     IMPERIAL COLLEGE LONDON
-
                        EE 3.19: Real Time Digital Signal Processing
                            Dr Paul Mitcheson and Daniel Harvey
-
                                   LAB 3: Interrupt I/O
-
                              ********* I N T I O. C **********
-
   Demonstrates inputing and outputing data from the DSK's audio port using interrupts.
-
  *************************************************************************************
                  Updated for use on 6713 DSK by Danny Harvey: May-Aug 2006
                 Updated for CCS V4 Sept 10
