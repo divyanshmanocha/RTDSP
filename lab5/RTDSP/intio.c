@@ -47,6 +47,7 @@
 
 int N = sizeof(a)/sizeof(a[0]);
 double* d;
+double xin;
 
 
 /******************************* Global declarations ********************************/
@@ -78,6 +79,7 @@ DSK6713_AIC23_CodecHandle H_Codec;
 void init_hardware(void);
 void init_HWI(void);
 void ISR_AIC(void);
+void iir_dir_form_transposed(void);
 /********************************** Main routine ************************************/
 void main(){
 	d = (double*)malloc(N * sizeof(double));
@@ -130,13 +132,17 @@ void init_HWI()
 /******************** INTERRUPT SERVICE ROUTINE ***********************/
 void ISR_AIC()
 {
+	xin = mono_read_16Bit();
+	
+	iir_dir_form_transposed();
+
+	mono_write_16Bit((short)d[0]);
+}
+
+void iir_dir_form_transposed() 
+{
 	int i;
-
-	short xin = mono_read_16Bit();
-
 	for (i = 0; i < N; ++i) {
 		d[i] = b[i] * xin + d[i+1] - a[i] * d[0];
 	}
-
-	mono_write_16Bit((short)d[0]);
 }
