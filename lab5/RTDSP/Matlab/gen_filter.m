@@ -1,6 +1,5 @@
 Fs = 8000;
-[b,a] = elliptical (Fs);
-freqz(b, a);
+b = m_filter;
+freqz(b, 1, 1024, Fs);
 
-%save filter_coeff_ell_b.txt b -ASCII -DOUBLE -TABS
-%save filter_coeff_ell_a.txt a -ASCII -DOUBLE -TABS
+save filter_coeff_correct.txt b -ASCII -DOUBLE -TABS
