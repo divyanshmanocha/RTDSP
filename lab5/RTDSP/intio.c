@@ -22,6 +22,7 @@
 /**************************** Pre-processor statements ******************************/
 
 #include <stdlib.h>
+#include <string.h>
 //  Included so program can make use of DSP/BIOS configuration tool.
 #include "dsp_bios_cfg.h"
 
@@ -42,8 +43,7 @@
 
 // PI defined here for use in your code
 #define PI 3.141592653589793
-#include "Matlab/filter_coeff_ell_a.txt"
-#include "Matlab/filter_coeff_ell_b.txt"
+#include "Matlab/coeff2.txt"
 
 int N = sizeof(a)/sizeof(a[0]);
 short* x;
@@ -79,27 +79,20 @@ DSK6713_AIC23_CodecHandle H_Codec;
 void init_hardware(void);
 void init_HWI(void);
 void ISR_AIC(void);
-short circ_fir(void);
 /********************************** Main routine ************************************/
 void main(){
-    int i;
     x = (short*)calloc(N, sizeof(short));
-	y = (double*)calloc(N, sizeof(double));
+	y = (double*)malloc(N * sizeof(double));
+	memset(y, 0.0, N * sizeof(double));
+
     // initialize board and the audio port
     init_hardware();
 
     /* initialize hardware interrupts */
     init_HWI();
-	
-	/* Initialises array to 0 */
-	for (i = 0; i < N; ++i) {
-		y[i] = 0.0;
-		x[i] = 0;
-	}
 
     /* loop indefinitely, waiting for interrupts */
     while(1) {};
-    
 }
 
 /********************************** init_hardware() **********************************/
@@ -139,22 +132,21 @@ void init_HWI()
 /******************** INTERRUPT SERVICE ROUTINE ***********************/
 void ISR_AIC()
 {
-	int i;
+	int i = N-1;
 	
+	y[0] = 0.0;
+
 	//Shift the values
-	for (i = N-1; i > 0; --i) {
+	for (; i > 0; --i) {
 		x[i] = x[i-1];
 		y[i] = y[i-1];
+
+		y[0] += b[i] * x[i] - a[i] * y[i];
 	}
-	
+
 	x[0] = mono_read_16Bit();
-	y[0] = 0.0;
-	
-	for (i = 0; i < N; ++i) {
-		y[0] += b[i] * x[i];
-		if (i != 0)
-			y[0] -= a[i] * y[i];	
-	}
-	
+
+	y[0] += b[0] * x[0];
+
 	mono_write_16Bit((short)y[0]);
 }
