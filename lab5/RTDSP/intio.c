@@ -82,7 +82,6 @@ void ISR_AIC(void);
 short circ_fir(void);
 /********************************** Main routine ************************************/
 void main(){
-    int i;
     x = (short*)calloc(N, sizeof(short));
 	y = (double*)calloc(N, sizeof(double));
     // initialize board and the audio port
@@ -90,12 +89,6 @@ void main(){
 
     /* initialize hardware interrupts */
     init_HWI();
-	
-	/* Initialises array to 0 */
-	for (i = 0; i < N; ++i) {
-		y[i] = 0.0;
-		x[i] = 0;
-	}
 
     /* loop indefinitely, waiting for interrupts */
     while(1) {};
