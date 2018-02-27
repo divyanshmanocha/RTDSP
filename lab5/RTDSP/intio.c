@@ -46,8 +46,7 @@
 #include "Matlab/coeff.txt"
 
 int N = sizeof(a)/sizeof(a[0]);
-short* x;
-double* y;
+double* v;
 
 
 /******************************* Global declarations ********************************/
@@ -81,9 +80,8 @@ void init_HWI(void);
 void ISR_AIC(void);
 /********************************** Main routine ************************************/
 void main(){
-    x = (short*)calloc(N, sizeof(short));
-	y = (double*)malloc(N * sizeof(double));
-	memset(y, 0.0, N * sizeof(double));
+	v = (double*)malloc(N * sizeof(double));
+	memset(v, 0.0, N * sizeof(double));
 
     // initialize board and the audio port
     init_hardware();
@@ -132,22 +130,21 @@ void init_HWI()
 /******************** INTERRUPT SERVICE ROUTINE ***********************/
 void ISR_AIC()
 {
-	int i = N-1;
+	int i;
 	double Y = 0.0;
 
-	//Shift the values
-	for (; i > 0; --i) {
-		x[i] = x[i-1];
-		y[i] = y[i-1];
-		
-		Y += x[i] * b[i] - y[i] * a[i];
+	v[0] = mono_read_16Bit();
+
+	for (i = 1; i < N; ++i) {
+		v[0] -= a[i] * v[i];
 	}
 
-	x[0] = mono_read_16Bit();
+	for (i = N-1; i > 0; --i) {
+		Y += b[i] * v[i];
+		v[i] = v[i-1];
+	}
 	
-	Y += x[0] * b[0];
-	
-	y[0] = Y;
+	Y += v[0] * b[0];
 
 	mono_write_16Bit((short)Y);
 }
