@@ -43,7 +43,7 @@
 
 // PI defined here for use in your code
 #define PI 3.141592653589793
-#include "Matlab/coeff2.txt"
+#include "Matlab/coeff.txt"
 
 int N = sizeof(a)/sizeof(a[0]);
 short* x;
@@ -133,23 +133,21 @@ void init_HWI()
 void ISR_AIC()
 {
 	int i = N-1;
+	double Y = 0.0;
 
 	//Shift the values
 	for (; i > 0; --i) {
 		x[i] = x[i-1];
 		y[i] = y[i-1];
+		
+		Y += x[i] * b[i] - y[i] * a[i];
 	}
 
 	x[0] = mono_read_16Bit();
 	
-	y[0] = 0.0;
+	Y += x[0] * b[0];
 	
-	for (i = 0; i < N; ++i) {
-		y[0] += x[i] * b[i];
-		if(i != 0) {
-			y[0] -= y[i] * a[i];	
-		}
-	}
+	y[0] = Y;
 
-	mono_write_16Bit((short)y[0]);
+	mono_write_16Bit((short)Y);
 }
