@@ -1,16 +1,11 @@
 /*************************************************************************************
                    DEPARTMENT OF ELECTRICAL AND ELECTRONIC ENGINEERING
                                     IMPERIAL COLLEGE LONDON
-
                        EE 3.19: Real Time Digital Signal Processing
                            Dr Paul Mitcheson and Daniel Harvey
-
                                   LAB 3: Interrupt I/O
-
                              ********* I N T I O. C **********
-
   Demonstrates inputing and outputing data from the DSK's audio port using interrupts.
-
  *************************************************************************************
                  Updated for use on 6713 DSK by Danny Harvey: May-Aug 2006
                 Updated for CCS V4 Sept 10
@@ -36,16 +31,16 @@
 
 // Some functions to help with writing/reading the audio ports when using interrupts.
 #include <helper_functions_ISR.h>
-#include "Matlab/filter_coeff.txt"
 // Some functions to help with configuring hardware
 #include "helper_functions_polling.h"
 
 
 // PI defined here for use in your code
 #define PI 3.141592653589793
-#define N 249
-double buffer[N]= {0};
-unsigned ptr = N-1;
+short x[] = {0, 0};
+double y[] = {0.0, 0.0};
+double a[] = {1, -1.875/2.125};
+double b[] = {0.125/2.125, 0.125/2.125};
 
 /******************************* Global declarations ********************************/
 
@@ -126,23 +121,10 @@ void init_HWI()
 /******************** INTERRUPT SERVICE ROUTINE ***********************/
 void ISR_AIC()
 {
-	buffer[ptr] = (double) mono_read_16Bit();
-	mono_write_16Bit((short)circ_fir());
-	if (ptr == 0)
-		ptr = N;
-	ptr--;
-}
-
-// Perform linear convolution
-short circ_fir()
-{
-	double y = 0;
-	int i = 0;
-	for(; i+ptr < N; i++) {
-		y += buffer[i+ptr] * b[N-i-1];
-	}
-	for(; i < N; i++) {
-		y += buffer[i+ptr-N] * b[N-i-1];
-	}
-	return y;
+	x[1] = x[0];
+	x[0] = mono_read_16Bit();
+	y[1] = y[0];
+	y[0] = b[0] * x[0] + b[1] * x[1] - a[1] * y[1];
+	
+	mono_write_16Bit((short)y[0]);
 }
