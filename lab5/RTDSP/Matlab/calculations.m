@@ -1,5 +1,11 @@
 % 1:768
 
+%Obtain Matlab coefficients
+Fs = 8000;
+[b,a] = elliptical (Fs);
+[exp_y, exp_x] = freqz(b, a, 2000,8000);
+
+
 load('all_pass_gain_linear.mat');
 load('all_pass_phase_linear.mat');
 
@@ -66,5 +72,25 @@ xlabel('Frequency (Hz)') % x-axis label
 ylabel('Phase (degrees)') % y-axis label
 title('Actual Amplitude Spectrum (Linear plot)');
 %set(gca, 'XScale', 'log');
+set(gca,'FontSize',16);
+grid on;
+
+
+figure
+plot(gain_r_x, gain_r_y, exp_x, 20*log10(abs(exp_y)));
+legend('Real gain','Expected gain');
+xlabel('Frequency (Hz)') % x-axis label
+ylabel('Amplitude (dB)') % y-axis label
+title('Comparison of the Matlab filter and the actual gain response');
+set(gca,'FontSize',16);
+grid on;
+
+
+figure
+plot(phase_r_x, phase_r_y, exp_x, rad2deg(angle(exp_y)));
+legend('Real Phase','Expected Phase');
+xlabel('Frequency (Hz)') % x-axis label
+ylabel('Phase (degrees)') % y-axis label
+title('Comparison of the Matlab filter and the actual phase response');
 set(gca,'FontSize',16);
 grid on;
