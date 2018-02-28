@@ -46,8 +46,8 @@
 #include "Matlab/coeff.txt"
 
 int N = sizeof(a)/sizeof(a[0]);
-short* x;
-double* y;
+double* v;
+double Y;
 
 
 /******************************* Global declarations ********************************/
@@ -79,11 +79,11 @@ DSK6713_AIC23_CodecHandle H_Codec;
 void init_hardware(void);
 void init_HWI(void);
 void ISR_AIC(void);
+void iir_dir_form(void);
 /********************************** Main routine ************************************/
 void main(){
-    x = (short*)calloc(N, sizeof(short));
-	y = (double*)malloc(N * sizeof(double));
-	memset(y, 0.0, N * sizeof(double));
+	v = (double*)malloc(N * sizeof(double));
+	memset(v, 0.0, N * sizeof(double));
 
     // initialize board and the audio port
     init_hardware();
@@ -132,22 +132,21 @@ void init_HWI()
 /******************** INTERRUPT SERVICE ROUTINE ***********************/
 void ISR_AIC()
 {
-	int i = N-1;
-	double Y = 0.0;
+	v[0] = mono_read_16Bit();
 
-	//Shift the values
-	for (; i > 0; --i) {
-		x[i] = x[i-1];
-		y[i] = y[i-1];
-		
-		Y += x[i] * b[i] - y[i] * a[i];
-	}
-
-	x[0] = mono_read_16Bit();
-	
-	Y += x[0] * b[0];
-	
-	y[0] = Y;
+	iir_dir_form();
 
 	mono_write_16Bit((short)Y);
+}
+
+void iir_dir_form()
+{
+	int i;
+	Y = b[0] * v[0];
+
+	for (i = N-1; i > 0; --i) {
+		v[0] -= a[i] * v[i];
+		Y += (b[i] - b[0] * a[i]) * v[i];
+		v[i] = v[i-1];
+	}
 }

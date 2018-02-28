@@ -34,7 +34,7 @@
 <listOptionValue builtIn="false" value="CHIP_6713"/>
 </option>
 <option id="com.ti.ccstudio.buildDefinitions.C6000_6.1.compilerID.DEBUGGING_MODEL.502361504" superClass="com.ti.ccstudio.buildDefinitions.C6000_6.1.compilerID.DEBUGGING_MODEL" value="com.ti.ccstudio.buildDefinitions.C6000_6.1.compilerID.DEBUGGING_MODEL.SYMDEBUG__DWARF" valueType="enumerated"/>
-<option id="com.ti.ccstudio.buildDefinitions.C6000_6.1.compilerID.OPT_LEVEL.2108985241" superClass="com.ti.ccstudio.buildDefinitions.C6000_6.1.compilerID.OPT_LEVEL" value="com.ti.ccstudio.buildDefinitions.C6000_6.1.compilerID.OPT_LEVEL.3" valueType="enumerated"/>
+<option id="com.ti.ccstudio.buildDefinitions.C6000_6.1.compilerID.OPT_LEVEL.2108985241" superClass="com.ti.ccstudio.buildDefinitions.C6000_6.1.compilerID.OPT_LEVEL" value="com.ti.ccstudio.buildDefinitions.C6000_6.1.compilerID.OPT_LEVEL.2" valueType="enumerated"/>
 <option id="com.ti.ccstudio.buildDefinitions.C6000_6.1.compilerID.OPT_FOR_SPEED.472451104" superClass="com.ti.ccstudio.buildDefinitions.C6000_6.1.compilerID.OPT_FOR_SPEED" value="com.ti.ccstudio.buildDefinitions.C6000_6.1.compilerID.OPT_FOR_SPEED.5" valueType="enumerated"/>
 </tool>
 <tool id="com.ti.ccstudio.buildDefinitions.C6000_6.1.exe.linkerDebug.1545787422" name="C6000 Linker" superClass="com.ti.ccstudio.buildDefinitions.C6000_6.1.exe.linkerDebug">
