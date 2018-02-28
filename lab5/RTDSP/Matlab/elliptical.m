@@ -1,6 +1,5 @@
-function [b,a] = elliptical (Fs)
+function [b,a] = elliptical (order, Fs)
 
-order = 4; % Order of the bandpass filter
 startband = 270*2/Fs; % Normalised startband frequency
 stopband = 450*2/Fs; % Normalised stopband frequency
 ripple = 0.3; % The passband ripple (in dB)

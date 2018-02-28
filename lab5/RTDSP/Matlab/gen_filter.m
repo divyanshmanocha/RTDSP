@@ -1,5 +1,5 @@
 Fs = 8000;
-[b,a] = elliptical (Fs);
+[b,a] = elliptical (32, Fs);
 freqz(b, a);
 
 fileID = fopen('coeff.txt','w');
