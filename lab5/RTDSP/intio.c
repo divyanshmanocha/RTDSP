@@ -82,8 +82,8 @@ void ISR_AIC(void);
 void iir_dir_form_transposed(void);
 /********************************** Main routine ************************************/
 void main(){
-	d = (double*)malloc(N * sizeof(double));
-	memset(d, 0.0, N * sizeof(double));
+	d = (double*)malloc((N+1) * sizeof(double));
+	memset(d, 0.0, (N+1) * sizeof(double));
 
     // initialize board and the audio port
     init_hardware();
@@ -142,10 +142,8 @@ void ISR_AIC()
 void iir_dir_form_transposed() 
 {
 	int i;
-	double y = d[0];
 	d[0] = b[0] * xin + d[1];
-	for (i = 1; i < N-1; ++i) {
-		d[i] = b[i] * xin + d[i+1] - a[i] * y;
+	for (i = 1; i < N; ++i) {
+		d[i] = b[i] * xin + d[i+1] - a[i] * d[0];
 	}
-	d[N-1] = b[N-1] * xin - a[N-1] * y;
 }
