@@ -1,7 +1,5 @@
 Fs = 8000;
-[b,a] = elliptical (Fs);
-% [y, x] = freqz(b, a, 2000,8000);
-% plot(x, abs(y));
+[b,a] = elliptical (32, Fs);
 
 fileID = fopen('coeff.txt','w');
 fprintf(fileID, 'double a[] = {');
