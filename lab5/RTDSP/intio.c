@@ -142,11 +142,12 @@ void ISR_AIC()
 void iir_dir_form()
 {
 	int i;
-	Y = b[0] * v[0];
 
 	for (i = N-1; i > 0; --i) {
 		v[0] -= a[i] * v[i];
-		Y += (b[i] - b[0] * a[i]) * v[i];
+		Y += b[i] * v[i];
 		v[i] = v[i-1];
 	}
+	
+	Y += b[0] * v[0];
 }
