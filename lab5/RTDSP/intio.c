@@ -142,7 +142,10 @@ void ISR_AIC()
 void iir_dir_form_transposed() 
 {
 	int i;
-	for (i = 0; i < N; ++i) {
-		d[i] = b[i] * xin + d[i+1] - a[i] * d[0];
+	double y = d[0];
+	d[0] = b[0] * xin + d[1];
+	for (i = 1; i < N-1; ++i) {
+		d[i] = b[i] * xin + d[i+1] - a[i] * y;
 	}
+	d[N-1] = b[N-1] * xin - a[N-1] * y;
 }
