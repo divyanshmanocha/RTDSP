@@ -50,7 +50,7 @@
 #define FRAMEINC (FFTLEN/OVERSAMP)	/* Frame increment */
 #define CIRCBUF (FFTLEN+FRAMEINC)	/* length of I/O buffers */
 #define FRAME_TIME 2.5
-#define MAX_COUNT 1000
+#define MAX_COUNT 20000
 #define MAX_FLOAT 3.4E+38
 #define OUTGAIN 16000.0				/* Output gain for DAC */
 #define INGAIN  (1.0/16000.0)		/* Input gain for ADC  */
@@ -247,11 +247,10 @@ void process_frame(void)
 	if(frame_ctr > MAX_COUNT-1) {
 		int i;
 		frame_ctr = 0;
-		free(M[NUM_M-1].spec);
-		for(k = NUM_M-1; k > 0; ++k) {
+		M[0].spec = M[NUM_M-1].spec;
+		for(k = NUM_M-1; k > 0; --k) {
 			M[k] = M[k-1];
 		}
-		M[0].spec = (complex *) malloc(FFTLEN * sizeof(complex));
 		M[0].mag_avg = MAX_FLOAT;
   		for(i = 0; i < FFTLEN; ++i) {
   			M[0].spec[i].r = MAX_FLOAT;
@@ -287,7 +286,6 @@ void ISR_AIC(void)
 {       
 	short sample;
 	/* Read and write the ADC and DAC using inbuffer and outbuffer */
-	frame_ctr++;
 	sample = mono_read_16Bit();
 	inbuffer[io_ptr] = ((float)sample)*ingain;
 		/* write new output data */
@@ -296,6 +294,7 @@ void ISR_AIC(void)
 	/* update io_ptr and check for buffer wraparound */    
 	
 	if (++io_ptr >= CIRCBUF) io_ptr=0;
+	frame_ctr++;
 }
 
 /************************************************************************************/
