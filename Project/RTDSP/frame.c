@@ -209,7 +209,10 @@ void wait_buffer(void)
 		mag[i] = cabs(C[i]);
 	}
     
-
+	ifft(BUFLEN, C);
+	for (i = 0; i < BUFLEN; ++i) {
+		intermediate[i] = C[i].r;
+	}
 
 	/**********************************************************************************/
 	
