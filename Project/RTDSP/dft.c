@@ -14,10 +14,11 @@ Complex X[N];
 float x_out[N];
 
 void dft() {
-    for(int k = 0; k < N; ++k) {
+    int n, k;
+    for(k = 0; k < N; ++k) {
         X[k].r = 0.f;
         X[k].i = 0.f;
-        for(int n = 0; n < N; ++n) {
+        for(n = 0; n < N; ++n) {
             X[k].r += x[n] * cos(2 * E_PI * k * n / N);
             X[k].i -= x[n] * sin(2 * E_PI * k * n / N);
         }
@@ -25,9 +26,10 @@ void dft() {
 }
 
 void idft() {
-    for(int n = 0; n < N; ++n) {
+    int n, k;
+    for(n = 0; n < N; ++n) {
         x_out[n] = 0.f;
-        for(int k = 0; k < N; ++k) {
+        for(k = 0; k < N; ++k) {
             x_out[n] += X[k].r * cos(2 * E_PI * k * n / N) - X[k].i * sin(2 * E_PI * k * n / N);
         }
         x_out[n] /= N;
@@ -35,9 +37,10 @@ void idft() {
 }
 
 int main() {
+    int k;
     dft();
     idft();
-    for(int k = 0; k < N; ++k) {
+    for(k = 0; k < N; ++k) {
         printf("x[%d] = %.2f, X[%d] = %.2f + %.2fi, x_out[%d] = %.2f\n", k, x[k], k, X[k].r, X[k].i, k, x_out[k]);
     }
 }
