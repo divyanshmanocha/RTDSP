@@ -78,6 +78,8 @@ float *input;
 float *intermediate;
 float *output;
 volatile int index = 0; 
+float* mag;
+complex C[BUFLEN];
  
 
  /******************************* Function prototypes *******************************/
@@ -181,7 +183,7 @@ void ISR_AIC(void)
 void wait_buffer(void)
 {
 	float *p;  
-
+	int i;
 	/* wait for array index to be set to zero by ISR */
 	while(index);
 	
@@ -191,10 +193,19 @@ void wait_buffer(void)
 	output = intermediate;
 	intermediate = p;
 	
+	
 	/************************* DO PROCESSING OF FRAME  HERE **************************/                
-
-
-								/*please add your code */	    
+	
+	// Copy data elements to complex
+	for (i = 0; i < BUFLEN; ++i)
+		C[i].r = intermediate[i];
+	
+	fft(BUFLEN, C);
+	
+	// Calculate the magnitude of the complex numbers
+	for (i = 0; i < BUFLEN; ++i) 
+		mag[i] = cabs(C[i]);
+    
 
 
 	/**********************************************************************************/
