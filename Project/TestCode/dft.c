@@ -1,8 +1,9 @@
 #include <math.h>
 #include <stdio.h>
+#include <stdlib.h>
 
 #define E_PI 3.1415926535897932384626433832795028841971693993751058209749445923078164062
-#define N 8
+#define N_DEF 8
 
 typedef struct {
     float r;
@@ -10,12 +11,10 @@ typedef struct {
 } Complex;
 
 float x[] = {0, 0, 2, 3, 4, 0, 0, 0};
-Complex X[N];
-float x_out[N];
 
 void dft(int N, Complex *X) {
     int i, n, k;
-	Complex x[N];
+    Complex *x = malloc(N * sizeof(X[0]));
 	for(i = 0; i < N; ++i) {
 		x[i] = X[i];
 	}
@@ -27,11 +26,12 @@ void dft(int N, Complex *X) {
             X[k].i -= x[n].r * sin(2 * E_PI * k * n / N);
         }
     }
+    free(x);
 }
 
 void idft(int N, Complex *X) {
     int i, n, k;
-	Complex x[N];
+	Complex *x = malloc(N * sizeof(X[0]));
 	for(i = 0; i < N; ++i) {
 		x[i] = X[i];
 	}
@@ -43,13 +43,22 @@ void idft(int N, Complex *X) {
         }
         X[n].r /= N;
     }
+    free(x);
 }
 
 int main() {
     int k;
-    dft();
-    idft();
-    for(k = 0; k < N; ++k) {
-        printf("x[%d] = %.2f, X[%d] = %.2f + %.2fi, x_out[%d] = %.2f\n", k, x[k], k, X[k].r, X[k].i, k, x_out[k]);
+    Complex X_C[8];
+    for(k = 0; k < N_DEF; ++k) {
+        X_C[k].r = x[k];
+        X_C[k].i = 0;
+    }
+    dft(N_DEF, X_C);
+    for(k = 0; k < N_DEF; ++k) {
+        printf("x[%d] = %.2f, X[%d] = %.2f + %.2fi\n", k, x[k], k, X_C[k].r, X_C[k].i);
+    }
+    idft(N_DEF, X_C);
+    for(k = 0; k < N_DEF; ++k) {
+        printf("x[%d] = %.2f, X[%d] = %.2f + %.2fi\n", k, x[k], k, X_C[k].r, X_C[k].i);
     }
 }
