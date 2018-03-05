@@ -36,7 +36,7 @@
 
 /* Some functions to help with Complex algebra and FFT. */
 #include "cmplx.h"      
-#include "fft_functions.h"  
+#include "fft_functions.h"
 
 // Some functions to help with writing/reading the audio ports when using interrupts.
 #include <helper_functions_ISR.h>
@@ -67,10 +67,10 @@ DSK6713_AIC23_Config Config = { \
 // Codec handle:- a variable used to identify audio interface  
 DSK6713_AIC23_CodecHandle H_Codec;
 
-// PI defined here for use in your code 
-#define PI 3.141592653589793
+// PI defined here for use in your code
+#define E_PI 3.1415926535897932384626433832795028841971693993751058209749445923078164062
 
-#define BUFLEN 128  /* Frame buffer length must be even for real fft */
+#define BUFLEN 800  /* Frame buffer length must be even for real fft */
 
 
 /* Pointers to data buffers */                        
@@ -88,6 +88,8 @@ void init_HWI(void);
 void ISR_AIC(void);
 void init_arrays(void);
 void wait_buffer(void); 
+void dft_(int N, complex *X);
+void idft_(int N, complex *X);
                        
 /********************************** Main routine ************************************/
 void main()
@@ -202,14 +204,14 @@ void wait_buffer(void)
 		C[i].r = intermediate[i];
 	}
 	
-	fft(BUFLEN, C);
+	dft_(BUFLEN, C);
 	
 	// Calculate the magnitude of the complex numbers
 	for (i = 0; i < BUFLEN; ++i) { 
 		mag[i] = cabs(C[i]);
 	}
     
-	ifft(BUFLEN, C);
+	idft_(BUFLEN, C);
 	for (i = 0; i < BUFLEN; ++i) {
 		intermediate[i] = C[i].r;
 	}
@@ -221,4 +223,38 @@ void wait_buffer(void)
 }        
 
 
+void dft_(int N, complex *X) {
+    int i, n, k;
+	complex* x = malloc(N*sizeof(X[0]));
+	for(i = 0; i < N; ++i) {
+		x[i] = X[i];
+	}
+    for(k = 0; k < N; ++k) {
+        X[k].r = 0.f;
+        X[k].i = 0.f;
+        for(n = 0; n < N; ++n) {
+            X[k].r += x[n].r * cos(2 * E_PI * k * n / N);
+            X[k].i -= x[n].r * sin(2 * E_PI * k * n / N);
+        }
+    }
+    
+    free(x);
+}
 
+void idft_(int N, complex *X) {
+    int i, n, k;
+	complex* x = malloc(N*sizeof(X[0]));
+	for(i = 0; i < N; ++i) {
+		x[i] = X[i];
+	}
+    for(n = 0; n < N; ++n) {
+        X[n].i = 0.f;
+		X[n].r = 0.f;
+        for(k = 0; k < N; ++k) {
+            X[n].r += x[k].r * cos(2 * E_PI * k * n / N) - x[k].i * sin(2 * E_PI * k * n / N);
+        }
+        X[n].r /= N;
+    }
+    
+    free(x);
+}

@@ -41,7 +41,7 @@ void idft(int N, Complex *X) {
         for(k = 0; k < N; ++k) {
             X[n].r += x[k].r * cos(2 * E_PI * k * n / N) - x[k].i * sin(2 * E_PI * k * n / N);
         }
-        X[n] /= N;
+        X[n].r /= N;
     }
 }
 
