@@ -78,7 +78,7 @@ float *input;
 float *intermediate;
 float *output;
 volatile int index = 0; 
-float* mag;
+float mag[BUFLEN];
 complex C[BUFLEN];
  
 
@@ -197,14 +197,17 @@ void wait_buffer(void)
 	/************************* DO PROCESSING OF FRAME  HERE **************************/                
 	
 	// Copy data elements to complex
-	for (i = 0; i < BUFLEN; ++i)
+	for (i = 0; i < BUFLEN; ++i) {
+		C[i].i = 0;
 		C[i].r = intermediate[i];
+	}
 	
 	fft(BUFLEN, C);
 	
 	// Calculate the magnitude of the complex numbers
-	for (i = 0; i < BUFLEN; ++i) 
+	for (i = 0; i < BUFLEN; ++i) { 
 		mag[i] = cabs(C[i]);
+	}
     
 
 
