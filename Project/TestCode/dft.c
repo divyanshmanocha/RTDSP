@@ -13,26 +13,35 @@ float x[] = {0, 0, 2, 3, 4, 0, 0, 0};
 Complex X[N];
 float x_out[N];
 
-void dft() {
-    int n, k;
+void dft(int N, Complex *X) {
+    int i, n, k;
+	Complex x[N];
+	for(i = 0; i < N; ++i) {
+		x[i] = X[i];
+	}
     for(k = 0; k < N; ++k) {
         X[k].r = 0.f;
         X[k].i = 0.f;
         for(n = 0; n < N; ++n) {
-            X[k].r += x[n] * cos(2 * E_PI * k * n / N);
-            X[k].i -= x[n] * sin(2 * E_PI * k * n / N);
+            X[k].r += x[n].r * cos(2 * E_PI * k * n / N);
+            X[k].i -= x[n].r * sin(2 * E_PI * k * n / N);
         }
     }
 }
 
-void idft() {
-    int n, k;
+void idft(int N, Complex *X) {
+    int i, n, k;
+	Complex x[N];
+	for(i = 0; i < N; ++i) {
+		x[i] = X[i];
+	}
     for(n = 0; n < N; ++n) {
-        x_out[n] = 0.f;
+        X[n].i = 0.f;
+		X[n].r = 0.f;
         for(k = 0; k < N; ++k) {
-            x_out[n] += X[k].r * cos(2 * E_PI * k * n / N) - X[k].i * sin(2 * E_PI * k * n / N);
+            X[n].r += x[k].r * cos(2 * E_PI * k * n / N) - x[k].i * sin(2 * E_PI * k * n / N);
         }
-        x_out[n] /= N;
+        X[n] /= N;
     }
 }
 
