@@ -94,9 +94,12 @@ float *inwin, *outwin;              /* Input and output windows */
 float ingain, outgain;				/* ADC and DAC gains */ 
 float cpufrac; 						/* Fraction of CPU time used */
 complex *fft_out;						/* FFT output */
+complex* noise;
 volatile int io_ptr=0;              /* Input/ouput pointer for circular buffers */
 volatile int frame_ptr=0;           /* Frame pointer */
 volatile int frame_ctr =0;
+volatile float lambda = 0.05;
+volatile float alpha = 20;
 double avg = 0;
 Spectrum M[NUM_M];
  /******************************* Function prototypes *******************************/
@@ -194,6 +197,8 @@ void process_frame(void)
 {
 	int k, m; 
 	int io_ptr0;
+	int min_index;
+	float min_avg = MAX_FLOAT, mag_N_X;
 	avg = 0;
 	/* work out fraction of available CPU time used by algorithm */    
 	cpufrac = ((float) (io_ptr & (FRAMEINC - 1)))/FRAMEINC;  
@@ -238,8 +243,21 @@ void process_frame(void)
 		}
 	}
 	
-	for(k = 0; k < FFTLEN; ++k) {
-		fft_out[k] = M[0].spec[k];	
+	for(k = 0; k < NUM_M; ++k) {
+		if (M[k].mag_avg < min_avg) {
+			min_avg = M[k].mag_avg;
+			min_index = k;
+		}
+	}
+	
+	noise = M[min_index].spec;
+	
+	for (k = 0; k < FFTLEN; ++k) {
+		float g;
+		mag_N_X = 1 - cabs(noise[k])/cabs(fft_out[k]);
+		g = mag_N_X > lambda ? mag_N_X : lambda;
+		fft_out[k].r *= g;
+		fft_out[k].i *= g;
 	}
 	
 	ifft(FFTLEN, fft_out);
