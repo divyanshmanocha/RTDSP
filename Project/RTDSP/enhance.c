@@ -105,6 +105,7 @@ double avg = 0;
 MVal M[NUM_M];
 float K;
 float time_constant = 50E-6;		/* Time constant in ms */
+int started = 0;
  /******************************* Function prototypes *******************************/
 void init_hardware(void);    	/* Initialize codec */ 
 void init_HWI(void);            /* Initialize hardware interrupts */
@@ -149,7 +150,7 @@ void main()
   		for(i = 0; i < FFTLEN; ++i) {
   			M[k].mag_spec[i] = MAX_FLOAT;
   		}
-  		M[k].sum = 0;
+  		M[k].sum = MAX_FLOAT;
   	}
   	
   	// initializing the value to estimate the low pass filter
@@ -203,7 +204,7 @@ void write_spectrum(void) {
 	M[m_ptr].sum = 0;
 	for(k = 0; k < FFTLEN; ++k) {
 		x_val = cabs(fft_out[k]);
-		if(M[m_ptr].mag_spec[k] > x_val) {
+		if(x_val < M[m_ptr].mag_spec[k] && x_val != 0) {
 			M[m_ptr].mag_spec[k] = x_val;
 			M[m_ptr].sum += x_val;
 		} else {
@@ -217,7 +218,7 @@ void get_noise(void) {
 	int min_index = 0, k;
 
 	for(k = 1; k < NUM_M; ++k) {
-		if (M[k].sum != 0 && M[k].sum < min_sum) {
+		if (M[k].sum < min_sum) {
 			min_sum = M[k].sum;
 			min_index = k;
 		}
@@ -332,6 +333,7 @@ void ISR_AIC(void)
 	
 	if (++io_ptr >= CIRCBUF) io_ptr=0;
 	frame_ctr++;
+	started = 1;
 }
 
 /************************************************************************************/
