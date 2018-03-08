@@ -55,6 +55,7 @@
 #define OUTGAIN 16000.0				/* Output gain for DAC */
 #define INGAIN  (1.0/16000.0)		/* Input gain for ADC  */
 #define NUM_M 4
+#define NUM_ALPHA 4
 // PI defined here for use in your code 
 #define PI 3.141592653589793
 #define TFRAME FRAMEINC/FSAMP       /* time between calculation of each frame */
@@ -93,17 +94,19 @@ float *noise;
 float *power_in;
 float *mag_in;
 float* lpf;
+float* prev_noise;
+float* SNR;
 volatile int io_ptr=0;              /* Input/ouput pointer for circular buffers */
 volatile int frame_ptr=0;           /* Frame pointer */
 volatile int frame_ctr = 0;
 volatile int m_ptr = 0;
 float lambda = 0.05;
-float alpha = 100;
+float alpha[NUM_ALPHA] = {1000, 600, 400, 400};
 double avg = 0;
 float *M[NUM_M];
 float mag_N_X;
 float K;
-static float time_constant = 40e-3;		/* Time constant in ms */
+float time_constant = 40e-3;		/* Time constant in ms */
 int started = 0;
  /******************************* Function prototypes *******************************/
 void init_hardware(void);    	/* Initialize codec */ 
@@ -112,7 +115,8 @@ void ISR_AIC(void);             /* Interrupt service routine for codec */
 void process_frame(void);       /* Frame processing routine */
 void write_spectrum(void);
 void get_noise(void);
-void low_pass_filter(void);           
+void low_pass_filter(float* current, float* next);     
+void overestimation(void);      
 /********************************** Main routine ************************************/
 void main()
 {      
@@ -130,9 +134,10 @@ void main()
     fft_out		= (complex *) calloc(FFTLEN, sizeof(complex));	/* FFT Output */
     power_in	= (float *) calloc(FFTLEN, sizeof(float));	/* Output window */
 	lpf 		= (float *) calloc(FFTLEN, sizeof(float));	/* Output window */
-    mag_in	= (float *) calloc(FFTLEN, sizeof(float));	/* Output window */
-    noise	= (float *) calloc(FFTLEN, sizeof(float));	/* Output window */
-	
+    mag_in		= (float *) calloc(FFTLEN, sizeof(float));	/* Output window */
+    noise		= (float *) calloc(FFTLEN, sizeof(float));	/* Output window */
+	prev_noise	= (float *) calloc(FFTLEN, sizeof(float));	/* Output window */
+	SNR			= (float *) calloc(FFTLEN, sizeof(float));	/* Output window */
 	/* initialize board and the audio port */
   	init_hardware();
   
@@ -218,19 +223,44 @@ void get_noise(void) {
 				min_i = i;
 			}
 		}
-		noise[k] = alpha * M[min_i][k];
+		noise[k] = M[min_i][k];
 	}
+	
+	overestimation();
 }
 
 
+
+void overestimation(void) {
+	int i;
+	float sum;
+
+	// Calcualte |signal^2/noise^2| for all k
+	for (i = 0; i < FFTLEN; ++i) {
+		SNR[i] = power_in[i] / noise[i];
+		sum += SNR[i];
+	}
+	
+	// Calculate average
+	sum /= FFTLEN;
+	
+	// Use SNRs to divide
+	for (i = 0; i < FFTLEN; ++i) {
+		// Normalising
+		SNR[i] /= 2*sum;
+		SNR[i] = SNR[i] > 1 ? 1 : SNR[i];
+		noise[i] *= alpha[(int)(SNR[i] * (NUM_ALPHA-1))];
+	}
+}
+
 // Low pass filter X(w)
-void low_pass_filter(void) {
+void low_pass_filter(float* current, float* next) {
 	int w;
 	float temp;
 	for (w = 0; w < FFTLEN; ++w) {
-		temp = power_in[w];
-		power_in[w] = (1-K)*power_in[w] + K*lpf[w];
-		lpf[w] = temp;
+		temp = current[w];
+		current[w] = (1-K)*current[w] + K*next[w];
+		next[w] = temp;
 	}
 }
         
@@ -273,10 +303,11 @@ void process_frame(void)
 	
 	// calculate the power spectrum
 	for (k = 0; k < FFTLEN; ++k) {
-		power_in[k] = sqrt(fft_out[k].r * fft_out[k].r + fft_out[k].i * fft_out[k].i);
+		power_in[k] = fft_out[k].r * fft_out[k].r + fft_out[k].i * fft_out[k].i;
 	}
 	
-	//low_pass_filter();
+	low_pass_filter(power_in, lpf);
+	low_pass_filter(noise, prev_noise);
 
 	// Get average of fft_out and write to Spectrum
 	write_spectrum();
