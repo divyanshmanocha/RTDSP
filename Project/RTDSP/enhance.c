@@ -80,11 +80,6 @@ DSK6713_AIC23_Config Config = { \
 			 /**********************************************************************/
 };
 
-typedef struct {
-	complex *spec;
-	float mag_avg;
-} Spectrum;
-
 // Codec handle:- a variable used to identify audio interface  
 DSK6713_AIC23_CodecHandle H_Codec;
 
@@ -101,7 +96,9 @@ volatile int frame_ctr =0;
 volatile float lambda = 0.05;
 volatile float alpha = 20;
 double avg = 0;
-Spectrum M[NUM_M];
+float *M[NUM_M];
+float K;
+float time_constant = 50E-6;		/* Time constant in ms */
  /******************************* Function prototypes *******************************/
 void init_hardware(void);    	/* Initialize codec */ 
 void init_HWI(void);            /* Initialize hardware interrupts */
@@ -138,7 +135,7 @@ void main()
 		outwin[k] = inwin[k]; 
 	} 
   	ingain=INGAIN;
-  	outgain=OUTGAIN;      
+  	outgain=OUTGAIN;
   	
   	for (k = 0; k < NUM_M; ++k) 
   	{
@@ -150,6 +147,9 @@ void main()
   			M[k].spec[i].i = MAX_FLOAT;
   		}
   	}  
+  	
+  	// initializing the value to estimate the low pass filter
+  	K = exp(- TFRAME / time_constant);
 
  							
   	/* main loop, wait for interrupt */  
