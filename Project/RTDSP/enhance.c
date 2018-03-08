@@ -81,7 +81,7 @@ DSK6713_AIC23_Config Config = { \
 };
 
 typedef struct {
-	float *mag_spec;
+	float *pow;
 	float sum;
 } MVal;
 
@@ -94,7 +94,10 @@ float *inwin, *outwin;              /* Input and output windows */
 float ingain, outgain;				/* ADC and DAC gains */ 
 float cpufrac; 						/* Fraction of CPU time used */
 complex *fft_out;						/* FFT output */
-float* noise;
+float *noise;
+float *power_in;
+float *mag_in;
+
 volatile int io_ptr=0;              /* Input/ouput pointer for circular buffers */
 volatile int frame_ptr=0;           /* Frame pointer */
 volatile int frame_ctr = 0;
@@ -127,6 +130,8 @@ void main()
     inwin		= (float *) calloc(FFTLEN, sizeof(float));	/* Input window */
     outwin		= (float *) calloc(FFTLEN, sizeof(float));	/* Output window */
     fft_out		= (complex *) calloc(FFTLEN, sizeof(complex));	/* FFT Output */
+    power_in	= (float *) calloc(FFTLEN, sizeof(float));	/* Output window */
+    mag_in	= (float *) calloc(FFTLEN, sizeof(float));	/* Output window */
 	
 	/* initialize board and the audio port */
   	init_hardware();
@@ -136,7 +141,7 @@ void main()
   
 /* initialize algorithm constants */  
                        
-  	for (k=0;k<FFTLEN;++k)
+  	for (k=0; k<FFTLEN; ++k)
 	{                           
 		inwin[k] = sqrt((1.0-WINCONST*cos(PI*(2*k+1)/FFTLEN))/OVERSAMP);
 		outwin[k] = inwin[k]; 
@@ -146,9 +151,9 @@ void main()
   	
   	for (k = 0; k < NUM_M; ++k) {
   		int i;
-  		M[k].mag_spec = (float *) calloc(FFTLEN, sizeof(float));
+  		M[k].pow = (float *) calloc(FFTLEN, sizeof(float));
   		for(i = 0; i < FFTLEN; ++i) {
-  			M[k].mag_spec[i] = MAX_FLOAT;
+  			M[k].pow[i] = MAX_FLOAT;
   		}
   		M[k].sum = MAX_FLOAT;
   	}
@@ -200,15 +205,13 @@ void init_HWI(void)
 // Spectrum calculations for the new values
 void write_spectrum(void) {
 	unsigned int k;
-	float x_val;
 	M[m_ptr].sum = 0;
 	for(k = 0; k < FFTLEN; ++k) {
-		x_val = cabs(fft_out[k]);
-		if(x_val < M[m_ptr].mag_spec[k] && x_val != 0) {
-			M[m_ptr].mag_spec[k] = x_val;
-			M[m_ptr].sum += x_val;
+		if(power_in[k] < M[m_ptr].pow[k] && power_in[k] != 0) {
+			M[m_ptr].pow[k] = power_in[k];
+			M[m_ptr].sum += power_in[k];
 		} else {
-			M[m_ptr].sum += M[m_ptr].mag_spec[k];
+			M[m_ptr].sum += M[m_ptr].pow[k];
 		}
 	}
 }
@@ -224,7 +227,7 @@ void get_noise(void) {
 		}
 	}
 
-	noise = M[min_index].mag_spec;
+	noise = M[min_index].pow;
 }
         
 /******************************** process_frame() ***********************************/  
@@ -265,30 +268,32 @@ void process_frame(void)
 	// Perform the FFT
 	fft(FFTLEN, fft_out);
 	
+	// calculate the power spectrum
+	for (k = 0; i < FFTLEN; ++l) {
+		power_in[k] = pow(fft_out[k].r, 2) + pow(fft_out[k].i, 2);
+	}
+
 	// Get average of fft_out and write to Spectrum
 	write_spectrum();
-	
+
 	// Set the noise
 	get_noise();
 	
-	// alpha*...
 	if(frame_ctr > MAX_COUNT-1) {
 		int i;
-		float x_val;
 		frame_ctr = 0;
 		if(++m_ptr == NUM_M) m_ptr = 0;
 		M[m_ptr].sum = 0;
   		for(i = 0; i < FFTLEN; ++i) {
-  			x_val = cabs(fft_out[i]);
-  			M[m_ptr].mag_spec[i] = x_val;
-  			M[m_ptr].sum += x_val;
+  			M[m_ptr].pow[i] = power_in[k];
+  			M[m_ptr].sum += power_in[k];
   		}
 	}
 
 	// max(lambda, |N(w)/g(w)|
 	for (k = 0; k < FFTLEN; ++k) {
 		float g;
-		mag_N_X = 1 - alpha * noise[k]/cabs(fft_out[k]);
+		mag_N_X = 1 - alpha * noise[k]/power_in[k];
 		g = mag_N_X > lambda ? mag_N_X : lambda;
 		fft_out[k] = rmul(g, fft_out[k]);
 	}
