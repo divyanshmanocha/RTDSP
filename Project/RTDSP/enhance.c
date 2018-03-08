@@ -191,6 +191,37 @@ void init_HWI(void)
 	IRQ_globalEnable();				// Globally enables interrupts
 
 }
+
+// Spectrum calculations for the new values
+void write_spectrum(void) {
+	unsigned int k;
+	avg = 0;
+	for(k = 0; k < FFTLEN; ++k) {
+		avg += cabs(fft_out[k]);	
+	}
+	avg /= FFTLEN;
+	
+	if(avg < M[0].mag_avg) {
+		M[0].mag_avg = avg;
+		for(k = 0; k < FFTLEN; ++k) {
+			M[0].spec[k] = fft_out[k];
+		}
+	}
+}
+
+void get_noise(void) {
+	float min_avg = MAX_FLOAT;
+
+	for(k = 0; k < NUM_M; ++k) {
+		if (M[k].mag_avg < min_avg) {
+			min_avg = M[k].mag_avg;
+			min_index = k;
+		}
+	}
+	
+	noise = M[min_index].spec;
+}
+
         
 /******************************** process_frame() ***********************************/  
 void process_frame(void)
@@ -198,8 +229,7 @@ void process_frame(void)
 	int k, m; 
 	int io_ptr0;
 	int min_index;
-	float min_avg = MAX_FLOAT, mag_N_X;
-	avg = 0;
+	float mag_N_X;
 	/* work out fraction of available CPU time used by algorithm */    
 	cpufrac = ((float) (io_ptr & (FRAMEINC - 1)))/FRAMEINC;  
 		
@@ -224,44 +254,32 @@ void process_frame(void)
 	
 	/************************* DO PROCESSING OF FRAME  HERE **************************/
 
+	// Initialise the array fft_out for FFT
 	for (k = 0; k < FFTLEN; ++k) {
-		fft_out[k].i = 0.0;
-		fft_out[k].r = inframe[k];
+		fft_out[k] = cmplx(inframe[k], 0.0)
 	}
 	
+	// Perform the FFT
 	fft(FFTLEN, fft_out);
 	
-	for(k = 0; k < FFTLEN; ++k) {
-		avg += cabs(fft_out[k]);	
-	}
-	avg /= FFTLEN;
+	// Get average of fft_out and write to Spectrum
+	write_spectrum();
 	
-	if(avg < M[0].mag_avg) {
-		M[0].mag_avg = avg;
-		for(k = 0; k < FFTLEN; ++k) {
-			M[0].spec[k] = fft_out[k];
-		}
-	}
+	// Set the noise
+	get_noise();
 	
-	for(k = 0; k < NUM_M; ++k) {
-		if (M[k].mag_avg < min_avg) {
-			min_avg = M[k].mag_avg;
-			min_index = k;
-		}
-	}
-	
-	noise = M[min_index].spec;
-	
+	// max(lambda, |N(w)/g(w)|
 	for (k = 0; k < FFTLEN; ++k) {
 		float g;
 		mag_N_X = 1 - cabs(noise[k])/cabs(fft_out[k]);
 		g = mag_N_X > lambda ? mag_N_X : lambda;
-		fft_out[k].r *= g;
-		fft_out[k].i *= g;
+		fft_out[k] = rmul(fft_out[k], g);
 	}
 	
+	// Back into time domain
 	ifft(FFTLEN, fft_out);
 	
+	// alpha*...
 	if(frame_ctr > MAX_COUNT-1) {
 		int i;
 		frame_ctr = 0;
