@@ -95,6 +95,7 @@ float ingain, outgain;				/* ADC and DAC gains */
 float cpufrac; 						/* Fraction of CPU time used */
 complex *fft_out;						/* FFT output */
 float* noise;
+float* P_;
 volatile int io_ptr=0;              /* Input/ouput pointer for circular buffers */
 volatile int frame_ptr=0;           /* Frame pointer */
 volatile int frame_ctr = 0;
@@ -104,14 +105,16 @@ float alpha = 20;
 double avg = 0;
 MVal M[NUM_M];
 float K;
-float time_constant = 50E-6;		/* Time constant in ms */
+static float time_constant = 40e-3;		/* Time constant in ms */
 int started = 0;
  /******************************* Function prototypes *******************************/
 void init_hardware(void);    	/* Initialize codec */ 
 void init_HWI(void);            /* Initialize hardware interrupts */
 void ISR_AIC(void);             /* Interrupt service routine for codec */
 void process_frame(void);       /* Frame processing routine */
-           
+void write_spectrum(void);
+void get_noise(void);
+void low_pass_filter(void);           
 /********************************** Main routine ************************************/
 void main()
 {      
@@ -143,7 +146,7 @@ void main()
 	} 
   	ingain=INGAIN;
   	outgain=OUTGAIN;
-  	
+
   	for (k = 0; k < NUM_M; ++k) {
   		int i;
   		M[k].mag_spec = (float *) calloc(FFTLEN, sizeof(float));
@@ -152,11 +155,8 @@ void main()
   		}
   		M[k].sum = MAX_FLOAT;
   	}
-  	
-  	// initializing the value to estimate the low pass filter
-  	K = exp(- TFRAME / time_constant);
 
- 							
+ 	K = exp(-TFRAME/time_constant);			
   	/* main loop, wait for interrupt */  
   	while(1) 	process_frame();
 }
@@ -213,6 +213,7 @@ void write_spectrum(void) {
 	}
 }
 
+// Noise estimataion
 void get_noise(void) {
 	float min_sum = M[0].sum;
 	int min_index = 0, k;
@@ -225,6 +226,12 @@ void get_noise(void) {
 	}
 
 	noise = M[min_index].mag_spec;
+}
+
+
+// Low pass filter X(w)
+void low_pass_filter(void) {
+	
 }
         
 /******************************** process_frame() ***********************************/  
@@ -256,7 +263,7 @@ void process_frame(void)
 	} 
 	
 	/************************* DO PROCESSING OF FRAME  HERE **************************/
-
+	
 	// Initialise the array fft_out for FFT
 	for (k = 0; k < FFTLEN; ++k) {
 		fft_out[k] = cmplx(inframe[k], 0.0);
