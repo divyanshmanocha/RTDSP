@@ -80,6 +80,11 @@ DSK6713_AIC23_Config Config = { \
 			 /**********************************************************************/
 };
 
+typedef struct {
+	float *mag_spec;
+	float sum;
+} MVal;
+
 // Codec handle:- a variable used to identify audio interface  
 DSK6713_AIC23_CodecHandle H_Codec;
 
@@ -89,14 +94,15 @@ float *inwin, *outwin;              /* Input and output windows */
 float ingain, outgain;				/* ADC and DAC gains */ 
 float cpufrac; 						/* Fraction of CPU time used */
 complex *fft_out;						/* FFT output */
-complex* noise;
+float* noise;
 volatile int io_ptr=0;              /* Input/ouput pointer for circular buffers */
 volatile int frame_ptr=0;           /* Frame pointer */
-volatile int frame_ctr =0;
-volatile float lambda = 0.05;
-volatile float alpha = 20;
+volatile int frame_ctr = 0;
+volatile int m_ptr = 0;
+float lambda = 0.05;
+float alpha = 20;
 double avg = 0;
-float *M[NUM_M];
+MVal M[NUM_M];
 float K;
 float time_constant = 50E-6;		/* Time constant in ms */
  /******************************* Function prototypes *******************************/
@@ -137,16 +143,14 @@ void main()
   	ingain=INGAIN;
   	outgain=OUTGAIN;
   	
-  	for (k = 0; k < NUM_M; ++k) 
-  	{
+  	for (k = 0; k < NUM_M; ++k) {
   		int i;
-  		M[k].spec = (complex *) calloc(FFTLEN, sizeof(complex));
-  		M[k].mag_avg = MAX_FLOAT;
+  		M[k].mag_spec = (float *) calloc(FFTLEN, sizeof(float));
   		for(i = 0; i < FFTLEN; ++i) {
-  			M[k].spec[i].r = MAX_FLOAT;
-  			M[k].spec[i].i = MAX_FLOAT;
+  			M[k].mag_spec[i] = MAX_FLOAT;
   		}
-  	}  
+  		M[k].sum = 0;
+  	}
   	
   	// initializing the value to estimate the low pass filter
   	K = exp(- TFRAME / time_constant);
@@ -195,40 +199,38 @@ void init_HWI(void)
 // Spectrum calculations for the new values
 void write_spectrum(void) {
 	unsigned int k;
-	avg = 0;
+	float x_val;
+	M[m_ptr].sum = 0;
 	for(k = 0; k < FFTLEN; ++k) {
-		avg += cabs(fft_out[k]);	
-	}
-	avg /= FFTLEN;
-	
-	if(avg < M[0].mag_avg) {
-		M[0].mag_avg = avg;
-		for(k = 0; k < FFTLEN; ++k) {
-			M[0].spec[k] = fft_out[k];
+		x_val = cabs(fft_out[k]);
+		if(M[m_ptr].mag_spec[k] > x_val) {
+			M[m_ptr].mag_spec[k] = x_val;
+			M[m_ptr].sum += x_val;
+		} else {
+			M[m_ptr].sum += M[m_ptr].mag_spec[k];
 		}
 	}
 }
 
 void get_noise(void) {
-	float min_avg = MAX_FLOAT;
+	float min_sum = M[0].sum;
+	int min_index = 0, k;
 
-	for(k = 0; k < NUM_M; ++k) {
-		if (M[k].mag_avg < min_avg) {
-			min_avg = M[k].mag_avg;
+	for(k = 1; k < NUM_M; ++k) {
+		if (M[k].sum != 0 && M[k].sum < min_sum) {
+			min_sum = M[k].sum;
 			min_index = k;
 		}
 	}
-	
-	noise = M[min_index].spec;
-}
 
+	noise = M[min_index].mag_spec;
+}
         
 /******************************** process_frame() ***********************************/  
 void process_frame(void)
 {
 	int k, m; 
 	int io_ptr0;
-	int min_index;
 	float mag_N_X;
 	/* work out fraction of available CPU time used by algorithm */    
 	cpufrac = ((float) (io_ptr & (FRAMEINC - 1)))/FRAMEINC;  
@@ -256,7 +258,7 @@ void process_frame(void)
 
 	// Initialise the array fft_out for FFT
 	for (k = 0; k < FFTLEN; ++k) {
-		fft_out[k] = cmplx(inframe[k], 0.0)
+		fft_out[k] = cmplx(inframe[k], 0.0);
 	}
 	
 	// Perform the FFT
@@ -268,31 +270,30 @@ void process_frame(void)
 	// Set the noise
 	get_noise();
 	
+	// alpha*...
+	if(frame_ctr > MAX_COUNT-1) {
+		int i;
+		float x_val;
+		frame_ctr = 0;
+		if(++m_ptr == NUM_M) m_ptr = 0;
+		M[m_ptr].sum = 0;
+  		for(i = 0; i < FFTLEN; ++i) {
+  			x_val = cabs(fft_out[i]);
+  			M[m_ptr].mag_spec[i] = x_val;
+  			M[m_ptr].sum += x_val;
+  		}
+	}
+
 	// max(lambda, |N(w)/g(w)|
 	for (k = 0; k < FFTLEN; ++k) {
 		float g;
-		mag_N_X = 1 - cabs(noise[k])/cabs(fft_out[k]);
+		mag_N_X = 1 - alpha * noise[k]/cabs(fft_out[k]);
 		g = mag_N_X > lambda ? mag_N_X : lambda;
-		fft_out[k] = rmul(fft_out[k], g);
+		fft_out[k] = rmul(g, fft_out[k]);
 	}
 	
 	// Back into time domain
 	ifft(FFTLEN, fft_out);
-	
-	// alpha*...
-	if(frame_ctr > MAX_COUNT-1) {
-		int i;
-		frame_ctr = 0;
-		M[0].spec = M[NUM_M-1].spec;
-		for(k = NUM_M-1; k > 0; --k) {
-			M[k] = M[k-1];
-		}
-		M[0].mag_avg = MAX_FLOAT;
-  		for(i = 0; i < FFTLEN; ++i) {
-  			M[0].spec[i].r = MAX_FLOAT;
-  			M[0].spec[i].i = MAX_FLOAT;
-  		}
-	}
 	
 	for (k = 0; k < FFTLEN; ++k) {
 		outframe[k] = fft_out[k].r;
