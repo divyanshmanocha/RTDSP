@@ -80,11 +80,6 @@ DSK6713_AIC23_Config Config = { \
 			 /**********************************************************************/
 };
 
-typedef struct {
-	float *pow;
-	float sum;
-} MVal;
-
 // Codec handle:- a variable used to identify audio interface  
 DSK6713_AIC23_CodecHandle H_Codec;
 
@@ -103,9 +98,9 @@ volatile int frame_ptr=0;           /* Frame pointer */
 volatile int frame_ctr = 0;
 volatile int m_ptr = 0;
 float lambda = 0.05;
-float alpha = 400;
+float alpha = 20;
 double avg = 0;
-MVal M[NUM_M];
+float *M[NUM_M];
 float mag_N_X;
 float K;
 float time_constant = 50E-6;		/* Time constant in ms */
@@ -133,6 +128,7 @@ void main()
     fft_out		= (complex *) calloc(FFTLEN, sizeof(complex));	/* FFT Output */
     power_in	= (float *) calloc(FFTLEN, sizeof(float));	/* Output window */
     mag_in	= (float *) calloc(FFTLEN, sizeof(float));	/* Output window */
+    noise	= (float *) calloc(FFTLEN, sizeof(float));	/* Output window */
 	
 	/* initialize board and the audio port */
   	init_hardware();
@@ -149,10 +145,9 @@ void main()
 	} 
   	ingain=INGAIN;
   	outgain=OUTGAIN;
-  	
+
   	for (k = 0; k < NUM_M; ++k) {
-  		M[k].pow = (float *) calloc(FFTLEN, sizeof(float));
-  		M[k].sum = 0;
+  		M[k] = (float *) calloc(FFTLEN, sizeof(float));
   	}
   	
   	// initializing the value to estimate the low pass filter
@@ -202,36 +197,28 @@ void init_HWI(void)
 // Spectrum calculations for the new values
 void write_spectrum(void) {
 	unsigned int k;
-	if(M[m_ptr].sum == 0) {
-		for(k = 0; k < FFTLEN; ++k) {
-			M[m_ptr].pow[k] = power_in[k];
-			M[m_ptr].sum += power_in[k];
-		}
-	} else {
-		M[m_ptr].sum = 0;
-		for(k = 0; k < FFTLEN; ++k) {
-			if(power_in[k] < M[m_ptr].pow[k]) {
-				M[m_ptr].pow[k] = power_in[k];
-				M[m_ptr].sum += power_in[k];
-			} else {
-				M[m_ptr].sum += M[m_ptr].pow[k];
-			}
+	for(k = 0; k < FFTLEN; ++k) {
+		if(power_in[k] < M[m_ptr][k] || M[m_ptr][k] == 0) {
+			M[m_ptr][k] = power_in[k];
 		}
 	}
 }
 
 void get_noise(void) {
-	float min_sum = M[0].sum;
-	int min_index = 0, k;
+	int k, i, min_i;
+	float min_val;
 
-	for(k = 1; k < NUM_M; ++k) {
-		if (M[k].sum < min_sum && M[k].sum != 0) {
-			min_sum = M[k].sum;
-			min_index = k;
+	for(k = 0; k < FFTLEN; ++k) {
+		min_i = 0;
+		min_val = M[0][k];
+		for(i = 1; i < NUM_M; ++i) {
+			if (M[i][k] < min_val && M[i][k]!= 0) {
+				min_val = M[i][k];
+				min_i = i;
+			}
 		}
+		noise[k] = alpha * M[min_i][k];
 	}
-
-	noise = M[min_index].pow;
 }
         
 /******************************** process_frame() ***********************************/  
@@ -273,7 +260,7 @@ void process_frame(void)
 	
 	// calculate the power spectrum
 	for (k = 0; k < FFTLEN; ++k) {
-		power_in[k] = fft_out[k].r * fft_out[k].r + fft_out[k].i * fft_out[k].i;
+		power_in[k] = sqrt(fft_out[k].r * fft_out[k].r + fft_out[k].i * fft_out[k].i);
 	}
 
 	// Get average of fft_out and write to Spectrum
@@ -286,17 +273,15 @@ void process_frame(void)
 		int i;
 		frame_ctr = 0;
 		if(++m_ptr == NUM_M) m_ptr = 0;
-		M[m_ptr].sum = 0;
   		for(i = 0; i < FFTLEN; ++i) {
-  			M[m_ptr].pow[i] = power_in[i];
-  			M[m_ptr].sum += power_in[i];
+  			M[m_ptr][i] = power_in[i];
   		}
 	}
 
 	// max(lambda, |N(w)/g(w)|
 	for (k = 0; k < FFTLEN; ++k) {
 		float g;
-		mag_N_X = sqrt(1 - alpha * noise[k]/power_in[k]);
+		mag_N_X = 1 - noise[k]/power_in[k];
 		g = mag_N_X > lambda ? mag_N_X : lambda;
 		fft_out[k] = rmul(g, fft_out[k]);
 	}
