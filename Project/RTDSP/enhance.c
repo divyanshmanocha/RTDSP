@@ -93,16 +93,19 @@ complex *fft_out;						/* FFT output */
 float *noise;
 float *power_in;
 float *mag_in;
-float* lpf;
+float* p_w;
 float* prev_noise;
 float* SNR;
 volatile int io_ptr=0;              /* Input/ouput pointer for circular buffers */
 volatile int frame_ptr=0;           /* Frame pointer */
 volatile int frame_ctr = 0;
 volatile int m_ptr = 0;
+float snr_val = 0;
+float total_snr = 0;
 float lambda = 0.05;
-float alpha[NUM_ALPHA] = {1000, 600, 400, 400};
-double avg = 0;
+float alpha[NUM_ALPHA] = {300, 400, 600, 1000};
+float avg = 0;
+float sum = 0;
 float *M[NUM_M];
 float mag_N_X;
 float K;
@@ -122,7 +125,7 @@ void main()
 {      
 
   	int k; // used in various for loops
-  
+  	int counter = 1;
 /*  Initialize and zero fill arrays */  
 
 	inbuffer	= (float *) calloc(CIRCBUF, sizeof(float));	/* Input array */
@@ -133,11 +136,14 @@ void main()
     outwin		= (float *) calloc(FFTLEN, sizeof(float));	/* Output window */
     fft_out		= (complex *) calloc(FFTLEN, sizeof(complex));	/* FFT Output */
     power_in	= (float *) calloc(FFTLEN, sizeof(float));	/* Output window */
-	lpf 		= (float *) calloc(FFTLEN, sizeof(float));	/* Output window */
+	p_w 		= (float *) calloc(FFTLEN, sizeof(float));	/* Output window */
     mag_in		= (float *) calloc(FFTLEN, sizeof(float));	/* Output window */
     noise		= (float *) calloc(FFTLEN, sizeof(float));	/* Output window */
 	prev_noise	= (float *) calloc(FFTLEN, sizeof(float));	/* Output window */
 	SNR			= (float *) calloc(FFTLEN, sizeof(float));	/* Output window */
+	for(k = 0; k < FFTLEN; ++k) {
+		SNR[k] = 0;	
+	}
 	/* initialize board and the audio port */
   	init_hardware();
   
@@ -160,7 +166,11 @@ void main()
 
  	K = exp(-TFRAME/time_constant);			
   	/* main loop, wait for interrupt */  
-  	while(1) 	process_frame();
+  	while(1) 	{
+  		process_frame();
+  		counter++;
+  		snr_val = total_snr / counter;
+  	}
 }
     
 /********************************** init_hardware() *********************************/  
@@ -233,17 +243,18 @@ void get_noise(void) {
 
 void overestimation(void) {
 	int i;
-	float sum;
-
+	sum = 0;
 	// Calcualte |signal^2/noise^2| for all k
 	for (i = 0; i < FFTLEN; ++i) {
-		SNR[i] = power_in[i] / noise[i];
-		sum += SNR[i];
+		if(noise[i] != 0) {
+			SNR[i] = power_in[i] / noise[i];
+			sum += SNR[i];
+		}
 	}
 	
 	// Calculate average
 	sum /= FFTLEN;
-	
+	total_snr += sum;
 	// Use SNRs to divide
 	for (i = 0; i < FFTLEN; ++i) {
 		// Normalising
@@ -306,7 +317,7 @@ void process_frame(void)
 		power_in[k] = fft_out[k].r * fft_out[k].r + fft_out[k].i * fft_out[k].i;
 	}
 	
-	low_pass_filter(power_in, lpf);
+	low_pass_filter(power_in, p_w);
 	low_pass_filter(noise, prev_noise);
 
 	// Get average of fft_out and write to Spectrum
@@ -327,7 +338,7 @@ void process_frame(void)
 	// max(lambda, |N(w)/g(w)|
 	for (k = 0; k < FFTLEN; ++k) {
 		float g;
-		mag_N_X = 1 - noise[k]/power_in[k];
+		mag_N_X = sqrt(1 - noise[k]/power_in[k]);
 		g = mag_N_X > lambda ? mag_N_X : lambda;
 		fft_out[k] = rmul(g, fft_out[k]);
 	}
