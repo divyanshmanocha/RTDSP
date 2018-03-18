@@ -269,9 +269,8 @@ void low_pass_filter(float* current, float* next) {
 	int w;
 	float temp;
 	for (w = 0; w < FFTLEN; ++w) {
-		temp = current[w];
 		current[w] = (1-K)*current[w] + K*next[w];
-		next[w] = temp;
+		next[w] = current[w];
 	}
 }
         
