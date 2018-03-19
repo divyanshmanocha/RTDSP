@@ -1,7 +1,7 @@
 %%
 % Creates the spectrogram for the audio files
 
-[song, fs] = audioread('../audio/best_case/car.wav');
+[song, fs] = audioread('../audio/phatom4_best.wav');
 song = song(1:fs*10);
 figure
 spectrogram(song, 256, [], [], fs, 'yaxis');

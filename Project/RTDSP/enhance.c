@@ -103,7 +103,7 @@ volatile int m_ptr = 0;
 float snr_val = 0;
 float total_snr = 0;
 float lambda = 0.05;
-float alpha[NUM_ALPHA] = {300, 400, 600, 1000};
+float alpha[NUM_ALPHA] = {100, 50, 9, 1};
 float avg = 0;
 float sum = 0;
 float *M[NUM_M];
@@ -267,7 +267,6 @@ void overestimation(void) {
 // Low pass filter X(w)
 void low_pass_filter(float* current, float* next) {
     int w;
-    float temp;
     for (w = 0; w < FFTLEN; ++w) {
         current[w] = (1-K)*current[w] + K*next[w];
         next[w] = current[w];
