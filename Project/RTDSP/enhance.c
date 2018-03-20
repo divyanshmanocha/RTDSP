@@ -103,7 +103,7 @@ volatile int m_ptr = 0;
 float snr_val = 0;
 float total_snr = 0;
 float lambda = 0.05;
-float alpha[NUM_ALPHA] = {100, 50, 9, 1};
+float alpha[NUM_ALPHA] = {100, 50, 20, 5};
 float avg = 0;
 float sum = 0;
 float *M[NUM_M];
@@ -254,6 +254,7 @@ void overestimation(void) {
 
     // Calculate average
     sum /= FFTLEN;
+    avg = sum;
     total_snr += sum;
     // Use SNRs to divide
     for (i = 0; i < FFTLEN; ++i) {
