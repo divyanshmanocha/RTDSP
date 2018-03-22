@@ -49,12 +49,12 @@
 #define OVERSAMP 4					/* oversampling ratio (2 or 4) */
 #define FRAMEINC (FFTLEN/OVERSAMP)	/* Frame increment */
 #define CIRCBUF (FFTLEN+FRAMEINC)	/* length of I/O buffers */
-#define FRAME_TIME 2.5
-#define MAX_COUNT 20000
+#define FRAME_TIME 1
+#define MAX_COUNT (FRAME_TIME * FSAMP)
 #define MAX_FLOAT 3.4E+38
 #define OUTGAIN 16000.0				/* Output gain for DAC */
 #define INGAIN  (1.0/16000.0)		/* Input gain for ADC  */
-#define NUM_M 4
+#define NUM_M 2
 #define NUM_ALPHA 4
 // PI defined here for use in your code
 #define PI 3.141592653589793
@@ -103,7 +103,7 @@ volatile int m_ptr = 0;
 float snr_val = 0;
 float total_snr = 0;
 float lambda = 0.05;
-float alpha[NUM_ALPHA] = {100, 50, 20, 5};
+float alpha[NUM_ALPHA] = {100, 100, 50, 10};
 float avg = 0;
 float sum = 0;
 float *M[NUM_M];
