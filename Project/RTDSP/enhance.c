@@ -103,7 +103,7 @@ volatile int m_ptr = 0;
 float snr_val = 0;
 float total_snr = 0;
 float lambda = 0.05;
-float alpha[NUM_ALPHA] = {100, 100, 50, 10};
+float alpha[NUM_ALPHA] = {10, 10, 10, 10};
 float avg = 0;
 float sum = 0;
 float *M[NUM_M];
